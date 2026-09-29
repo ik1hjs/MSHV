@@ -298,6 +298,8 @@ public slots:
     void SetFreqTxW(double f);
     void SetLogQsoStartDtEqEndDt(bool f);
     void SetFreqGlobalFromRigCat(QString);
+    void SetUdpRxDf(double);//ik1hjs
+    void SetUdpTxDf(double);//ik1hjs
     void SetModeGlobalFromRigCat(QString);
     
     void SetTxWatchdogParms(int,int,int);
@@ -392,6 +394,7 @@ signals:
     void EmitUdpCmdDl(QStringList);
     void EmitUdpConfigure(int);//2.76.7
     void EmitUdpCmdStop(bool);
+    void EmitUdpTxDf(double);//ik1hjs
     void EmitQrgParms(QString s,bool f);//2.45 
     void EmitQrgQSY(QStringList);//2.46 
     void EmitDistUnit(bool);

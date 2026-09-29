@@ -273,6 +273,7 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     connect(TRadioAndNetW,SIGNAL(EmitUdpCmdDl(QStringList)),this,SIGNAL(EmitUdpCmdDl(QStringList)));
     connect(TRadioAndNetW,SIGNAL(EmitUdpConfigure(int)),this,SIGNAL(EmitUdpConfigure(int)));
     connect(TRadioAndNetW,SIGNAL(EmitUdpCmdStop(bool)),this,SIGNAL(EmitUdpCmdStop(bool)));
+    connect(TRadioAndNetW,SIGNAL(EmitUdpTxDf(double)),this,SIGNAL(EmitUdpTxDf(double)));//ik1hjs
     connect(TRadioAndNetW,SIGNAL(EmitOpenRadNetWToRecon()),this,SLOT(NetW_exec()));
     connect(TRadioAndNetW,SIGNAL(EmitOtpTxKey(QString)),this,SIGNAL(EmitOtpTxKey(QString)));//2.76sf
     connect(TRadioAndNetW,SIGNAL(EmitOtpRxMsg(bool)),this,SIGNAL(EmitOtpRxMsg(bool)));//2.76sf
@@ -5036,6 +5037,14 @@ void HvTxW::CountTx73_p(bool svlog)
         }
         else count_73_auto_seq++;
     }
+}
+void HvTxW::SetUdpRxDf(double f)//ik1hjs
+{
+    TRadioAndNetW->SetUdpRxDf(f);
+}
+void HvTxW::SetUdpTxDf(double f)//ik1hjs
+{
+    TRadioAndNetW->SetUdpTxDf(f);
 }
 void HvTxW::SetTxRxCountAutoSeq(bool f)
 {

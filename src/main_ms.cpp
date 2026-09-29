@@ -784,6 +784,9 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
 
     connect(THvTxW, SIGNAL(EmitLockTxrx(bool)), MainDisplay, SLOT(SetLockTxrx(bool)));
     connect(THvTxW, SIGNAL(EmitFreqTxW(double)), MainDisplay, SLOT(SetFreqExternal(double)));
+    connect(THvTxW, SIGNAL(EmitUdpTxDf(double)), MainDisplay, SLOT(SetTxFreqExternal(double)));//ik1hjs UDP set TX audio freq
+    connect(MainDisplay, SIGNAL(EmitVDRxFreqF0F1(double,double,double)), THvTxW, SLOT(SetUdpRxDf(double)));//ik1hjs UDP status rx_df
+    connect(MainDisplay, SIGNAL(EmitVDTxFreq(double)), THvTxW, SLOT(SetUdpTxDf(double)));//ik1hjs UDP status tx_df
     connect(TDecodeList1, SIGNAL(EmitFreqDecListClick(double)), THvTxW, SLOT(SetFreqTxW(double)));
     connect(TDecodeList2, SIGNAL(EmitFreqDecListClick(double)), THvTxW, SLOT(SetFreqTxW(double)));
 
@@ -5281,22 +5284,26 @@ void Main_Ms::keyPressEvent(QKeyEvent* event)
         break;
     case Qt::Key_QuoteLeft:  //US  //Qt::Key_Apostrophe  Qt::Key_W  Qt::Key_QuoteLeft;->`~  || Qt::Key_AsciiCircum ^
     case Qt::Key_AsciiCircum://German
+    case Qt::Key_Ugrave:     //Italian ù (ik1hjs)
+    case Qt::Key_Backslash:  //ik1hjs: on Windows Italian layout Ctrl+ù arrives as Key_Backslash with VK_OEM_2 (0xBF)
     case Qt::Key_Q:		     //MA Standard
         if (event->modifiers()==Qt::ControlModifier && (s_mode==11 || s_mode==13 || s_mode==18 || allq65) && !g_block_mam)//"Multi Answering Auto Sequence Protocol FT8"
         {
-            if (event->key()==Qt::Key_QuoteLeft || event->key()==Qt::Key_AsciiCircum)//MA DXpedition
+            bool it_ugrave = (event->key()==Qt::Key_Ugrave ||
+                              (event->key()==Qt::Key_Backslash && event->nativeVirtualKey()==0xBF));//ik1hjs
+            if (event->key()==Qt::Key_QuoteLeft || event->key()==Qt::Key_AsciiCircum || it_ugrave)//MA DXpedition
             {
                 if (Multi_answer_mod->isChecked())
                     Multi_answer_mod->setChecked(false);
                 else
                     Multi_answer_mod->setChecked(true);
             }
-            if (event->key()==Qt::Key_Q)//MA Standard
+            if (event->key()==Qt::Key_Q)//ik1hjs: Ctrl+Q toggles MA Standard <-> MA DXpedition
             {
                 if (Multi_answer_mod_std->isChecked())
-                    Multi_answer_mod_std->setChecked(false);
+                    Multi_answer_mod->setChecked(true);//SetMultiAnswerMod() unchecks Standard
                 else
-                    Multi_answer_mod_std->setChecked(true);
+                    Multi_answer_mod_std->setChecked(true);//SetMultiAnswerModStd() unchecks DXpedition
             }
         }
         if (event->modifiers()==Qt::ControlModifier && (s_mode==11 || s_mode==13 || s_mode==18 || allq65) && g_block_mam)

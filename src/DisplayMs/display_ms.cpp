@@ -319,6 +319,14 @@ void DisplayMs::SetFreqExternal(double frq)
     setVDispFreqScale(s_start,s_stop);
     SaveFT8RxTxFreq();
 }
+void DisplayMs::SetTxFreqExternal(double frq)//ik1hjs same as Shift+click on waterfall, RX freq untouched
+{
+    if (!f_disp_v_h) return;
+    vd_tx_freq = frq;
+    SetVDTxFreq();
+    setVDispFreqScale(s_start,s_stop);
+    SaveFT8RxTxFreq();
+}
 void DisplayMs::SetLockTxrx(bool f)
 {
     f_lock_txrx = f; //if (f_lock_txrx) SetTxToRx(true);// true  fictive

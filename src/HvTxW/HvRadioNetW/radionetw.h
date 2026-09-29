@@ -229,6 +229,8 @@ public:
     void SendDecodTxt(QString tim,int sn,QString dt,int frq,QString msg);///*,QString mod*/
     void SetAuto(bool);
     void SetTx(bool);
+    void SetUdpRxDf(double);//ik1hjs
+    void SetUdpTxDf(double);//ik1hjs
     void SetDxParm(QString,QString,QString);
     void SetUdpDecClr();
     void FindFreqRadList(int id,QString &sfrq);
@@ -291,6 +293,7 @@ signals:
     void EmitUdpCmdDl(QStringList);
     void EmitUdpConfigure(int);//2.76.7
     void EmitUdpCmdStop(bool);
+    void EmitUdpTxDf(double);//ik1hjs
     void EmitOpenRadNetWToRecon();
     void EmitUploadClubLogInfo(QString);
     void EmitOtpTxKey(QString);
@@ -329,6 +332,8 @@ private:
     QString s_dx_grid;
     bool s_auto;
     bool s_tx;
+    quint32 s_rx_df;//ik1hjs
+    quint32 s_tx_df;//ik1hjs
     QString s_tx_msg;
     void SendStatus(int);
 
@@ -521,6 +526,7 @@ private slots:
     void set_reply_clr(QStringList);
     void set_configure(QStringList);
     void set_halt_tx(bool);
+    void set_tx_df(quint32);//ik1hjs
     //void connected_clublog();
     //void disconnected_clublog();
     void readClubLog();

@@ -270,6 +270,16 @@ void MessageClient::impl::parse_message(QByteArray const& msg)
                 }
             }
             break;
+        case NetworkMessage::SetTxAudioFreq://ik1hjs
+            {
+                quint32 tx_df {0};
+                in >> tx_df;
+                if (check_status (in) != Fail)
+                {
+                    Q_EMIT self_->set_tx_df(tx_df);
+                }
+            }
+            break;
         case NetworkMessage::AnnotationInfo:
             {
                 /*QByteArray dx_call;
@@ -525,7 +535,7 @@ void MessageClient::decodes_cleared()
 //#include <limits>
 void MessageClient::statusUPD(quint64 f,QString mode,QString dx_call,QString report,QString tx_mode,
                               QString de_call,QString de_grid,QString dx_grid,bool decoding,QString sub_mode,
-                              bool tx_enabled,bool transmitting,QString tx_message)
+                              bool tx_enabled,bool transmitting,QString tx_message,quint32 rx_df,quint32 tx_df)
 {
     if (m_->server_port_ && !m_->server_.isNull())
     {
@@ -539,8 +549,8 @@ void MessageClient::statusUPD(quint64 f,QString mode,QString dx_call,QString rep
         //bool tx_enabled = true;  //auto on
         //bool transmitting = false;//tx
         //bool decoding = true;
-        quint32 rx_df = 0;//1200;
-        quint32 tx_df = 0;//1200;
+        //quint32 rx_df = 0;//1200; ik1hjs now real values
+        //quint32 tx_df = 0;//1200;
         //QString de_call;
         //QString de_grid;
         //QString dx_grid;

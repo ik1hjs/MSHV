@@ -123,6 +123,7 @@ public slots:
     void SetRxToTx(bool);//2.63
     void SetLockTxrx(bool);
     void SetFreqExternal(double);
+    void SetTxFreqExternal(double);//ik1hjs
     void SetVDMouseBWDrawLines(bool);//2.72
     void SetVDMouseBWRXDrawLines(bool);
     void SetVDMouseBWTXDrawLines(bool);
