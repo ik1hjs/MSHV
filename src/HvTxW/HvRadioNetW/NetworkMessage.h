@@ -338,8 +338,9 @@ namespace NetworkMessage
       SwitchConfiguration,	//0e
       Configure,			//0f
       AnnotationInfo,       //10  2.76sf
-      maximum_message_type_     // ONLY add new message types
+      maximum_message_type_,    // ONLY add new message types
                                 // immediately before here
+      SetTxAudioFreq = 50       // ik1hjs custom, not used by WSJT-X, in: quint32 TX audio freq Hz
     };
 
   quint32 constexpr pulse {15}; // seconds

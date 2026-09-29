@@ -50,7 +50,7 @@ public:
     void decode_TXT(bool is_new,QString tim,int sn,QString dt,int frq,QString mod,QString msg); 
     void statusUPD(quint64 f,QString mode,QString dx_call,QString report,QString tx_mode,
 				QString de_call,QString de_grid,QString dx_grid,bool decoding,QString sub_mode,bool,
-				bool,QString);
+				bool,QString,quint32 rx_df,quint32 tx_df);
     void decodes_cleared();
 
     Q_SIGNAL void ConectionInfo(QString);
@@ -73,6 +73,7 @@ public:
     Q_SIGNAL void replay(); 
     Q_SIGNAL void reply_clr(QStringList); //<---is here Q_SIGNAL void clear_decodes(int); 
     Q_SIGNAL void halt_tx(bool);   
+    Q_SIGNAL void set_tx_df(quint32);//ik1hjs
   	//Q_SIGNAL void reply (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode
                        //, QString const& message_text, bool low_confidence, quint8 modifiers);  	
     Q_SIGNAL void configure(QStringList);//,bool);

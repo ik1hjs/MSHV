@@ -957,6 +957,8 @@ RadioAndNetW::RadioAndNetW(QString inst,QString path,bool indsty,int x,int y,QWi
     s_dx_grid = "";
     s_auto = false;
     s_tx = false;
+    s_rx_df = 0;//ik1hjs
+    s_tx_df = 0;//ik1hjs
     s_tx_msg = "";
     s_cont_id = 0;
 
@@ -1619,6 +1621,7 @@ RadioAndNetW::RadioAndNetW(QString inst,QString path,bool indsty,int x,int y,QWi
     connect(m_messageClientBroad, SIGNAL(reply_clr(QStringList)), this, SLOT(set_reply_clr(QStringList)));
     connect(m_messageClientBroad, SIGNAL(configure(QStringList)), this, SLOT(set_configure(QStringList)));
     connect(m_messageClientBroad, SIGNAL(halt_tx(bool)), this, SLOT(set_halt_tx(bool)));
+    connect(m_messageClientBroad, SIGNAL(set_tx_df(quint32)), this, SLOT(set_tx_df(quint32)));//ik1hjs
     connect(m_messageClientBroad, SIGNAL(ConectionInfo(QString)), this, SLOT(ConectionInfoBroad(QString)));
     connect(cb_udp_broad_log_qso, SIGNAL(toggled(bool)), this, SLOT(StartStopUdpBroad(bool)));
     connect(cb_udp_broad_log_adif, SIGNAL(toggled(bool)), this, SLOT(StartStopUdpBroad(bool)));
@@ -3572,6 +3575,25 @@ void RadioAndNetW::set_halt_tx(bool f)
     //if (f_mods_accept_cmd)
     emit EmitUdpCmdStop(f);
 }
+void RadioAndNetW::set_tx_df(quint32 f)//ik1hjs UDP set TX audio freq, ignored while transmitting
+{
+    if (s_tx || f < 100 || f > 3100) return;
+    emit EmitUdpTxDf((double)f);
+}
+void RadioAndNetW::SetUdpRxDf(double f)//ik1hjs
+{
+    quint32 df = (quint32)f;
+    if (df == s_rx_df) return;
+    s_rx_df = df;
+    SendStatus(10);
+}
+void RadioAndNetW::SetUdpTxDf(double f)//ik1hjs
+{
+    quint32 df = (quint32)f;
+    if (df == s_tx_df) return;
+    s_tx_df = df;
+    SendStatus(11);
+}
 void RadioAndNetW::SendStatus(int id)
 {
     if (!cb_udp_broad_decod->isChecked()) return;
@@ -3642,7 +3664,7 @@ void RadioAndNetW::DecodUpdTimer()
         //qDebug()<<"START Status----------------------->"<<id_activ_upd<<s_dx_call<<s_dx_grid<<s_mode;
         quint64 frq = FREQ_GLOBAL.toLongLong();
         m_messageClientBroad->statusUPD(frq,s_mode,s_dx_call,s_report,s_mode,s_myCall,s_myLoc,s_dx_grid,fdec,s_smode,
-                                        s_auto,s_tx,s_tx_msg);
+                                        s_auto,s_tx,s_tx_msg,s_rx_df,s_tx_df);
         if (pos_dec == 0)//2.59
         {
             //qDebug()<<"0-END Status----->"<<id_activ_upd;
@@ -3678,7 +3700,7 @@ void RadioAndNetW::DecodUpdTimer()
                 //qDebug()<<"1-END Status-------->"<<id_activ_upd;
                 quint64 frq = FREQ_GLOBAL.toLongLong();
                 m_messageClientBroad->statusUPD(frq,s_mode,s_dx_call,s_report,s_mode,s_myCall,s_myLoc,s_dx_grid,false,s_smode,
-                                                s_auto,s_tx,s_tx_msg);
+                                                s_auto,s_tx,s_tx_msg,s_rx_df,s_tx_df);
             }
             pos_upd = -1;
             pos_dec = 0;
