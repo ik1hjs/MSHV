@@ -76,6 +76,7 @@ HvRigCat::HvRigCat( QWidget *parent )
     c_poll_comm = -1;
     s_meter_rig = false;//ik1hjs
     c_meter_poll = 0;//ik1hjs
+    f_meter_shown = false;//ik1hjs
     s_port_type = RIG_PORT_NONE;
     s_port_poen = false;
     vita_rx = 0;
@@ -369,6 +370,8 @@ void HvRigCat::SetRig(int index)
     s_active_fact_id = -100;
     f_rig_active_never_stop = false;//2.76.1 Flex Slice
     s_meter_rig = false;//ik1hjs
+    f_meter_shown = false;//ik1hjs
+    emit EmitGetedMeter("OFF");//ik1hjs hide the K3 bar until a K3 answers
 
     have_read_data_rts_on = 0;
 
@@ -868,6 +871,11 @@ void HvRigCat::SetReadedInfo(CmdID i,QString str)
         if (c_rig_cat_active_and_read == POLLRST) emit EmitCatAactiveAndRead(true,true);//2.53 true to TxWidget
         c_rig_cat_active_and_read = 0;
         emit EmitGetedFreq(str);
+        if (s_meter_rig && !f_meter_shown)//ik1hjs K3 answers on CAT: show the ALC bar already in receive
+        {
+            f_meter_shown = true;
+            emit EmitGetedMeter("RX");
+        }
     }
     else if (i==GET_MODE) emit EmitGetedMode(str);
     else if (i==GET_METER) emit EmitGetedMeter(str);//ik1hjs

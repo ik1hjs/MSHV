@@ -190,6 +190,7 @@ private:
     bool s_f_ptt;
     bool s_meter_rig;//ik1hjs K3: read TX meter while transmitting
     int c_meter_poll;//ik1hjs
+    bool f_meter_shown;//ik1hjs
     int tci_select;
     int max4min;
     bool f_rig_active_never_stop;//2.76.1 Flex Slice

@@ -5065,6 +5065,11 @@ void HvTxW::CountTx73_p(bool svlog)
 }
 void HvTxW::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or "RX" at end of TX
 {
+    if (s=="OFF")//ik1hjs rig is not a K3
+    {
+        w_k3->hide();
+        return;
+    }
     if (w_k3->isHidden()) w_k3->show();
     if (s=="RX")
     {
