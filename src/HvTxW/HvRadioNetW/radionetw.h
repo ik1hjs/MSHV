@@ -294,6 +294,7 @@ signals:
     void EmitUdpConfigure(int);//2.76.7
     void EmitUdpCmdStop(bool);
     void EmitUdpTxDf(double);//ik1hjs
+    void EmitUdpDxCall(QStringList);//ik1hjs
     void EmitOpenRadNetWToRecon();
     void EmitUploadClubLogInfo(QString);
     void EmitOtpTxKey(QString);
@@ -527,6 +528,7 @@ private slots:
     void set_configure(QStringList);
     void set_halt_tx(bool);
     void set_tx_df(quint32);//ik1hjs
+    void set_dx_call(QStringList);//ik1hjs
     //void connected_clublog();
     //void disconnected_clublog();
     void readClubLog();

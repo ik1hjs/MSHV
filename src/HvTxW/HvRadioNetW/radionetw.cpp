@@ -1622,6 +1622,7 @@ RadioAndNetW::RadioAndNetW(QString inst,QString path,bool indsty,int x,int y,QWi
     connect(m_messageClientBroad, SIGNAL(configure(QStringList)), this, SLOT(set_configure(QStringList)));
     connect(m_messageClientBroad, SIGNAL(halt_tx(bool)), this, SLOT(set_halt_tx(bool)));
     connect(m_messageClientBroad, SIGNAL(set_tx_df(quint32)), this, SLOT(set_tx_df(quint32)));//ik1hjs
+    connect(m_messageClientBroad, SIGNAL(set_dx_call(QStringList)), this, SLOT(set_dx_call(QStringList)));//ik1hjs
     connect(m_messageClientBroad, SIGNAL(ConectionInfo(QString)), this, SLOT(ConectionInfoBroad(QString)));
     connect(cb_udp_broad_log_qso, SIGNAL(toggled(bool)), this, SLOT(StartStopUdpBroad(bool)));
     connect(cb_udp_broad_log_adif, SIGNAL(toggled(bool)), this, SLOT(StartStopUdpBroad(bool)));
@@ -3574,6 +3575,10 @@ void RadioAndNetW::set_halt_tx(bool f)
 {
     //if (f_mods_accept_cmd)
     emit EmitUdpCmdStop(f);
+}
+void RadioAndNetW::set_dx_call(QStringList l)//ik1hjs UDP Configure: DX call / grid / generate messages
+{
+    emit EmitUdpDxCall(l);
 }
 void RadioAndNetW::set_tx_df(quint32 f)//ik1hjs UDP set TX audio freq, ignored while transmitting
 {

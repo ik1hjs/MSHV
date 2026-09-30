@@ -267,6 +267,12 @@ void MessageClient::impl::parse_message(QByteArray const& msg)
                     QStringList list; //mode = mode.toUpper(); submode = submode.toUpper();
                     list<<QString::fromUtf8(mode)<<QString::fromUtf8(submode);//<<QString::fromUtf8(dx_call)<<QString::fromUtf8(dx_grid);
                     Q_EMIT self_->configure(list);//,generate_messages);                
+                    if (!dx_call.isEmpty())//ik1hjs DX call (+grid) in TO RADIO, like typing it; never touches AUTO
+                    {
+                        QStringList dl;
+                        dl<<QString::fromUtf8(dx_call)<<QString::fromUtf8(dx_grid)<<(generate_messages ? "1" : "0");
+                        Q_EMIT self_->set_dx_call(dl);
+                    }
                 }
             }
             break;

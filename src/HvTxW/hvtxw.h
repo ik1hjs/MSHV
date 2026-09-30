@@ -303,6 +303,7 @@ public slots:
     void SetFreqGlobalFromRigCat(QString);
     void SetUdpRxDf(double);//ik1hjs
     void SetUdpTxDf(double);//ik1hjs
+    void SetUdpDxCall(QStringList);//ik1hjs UDP Configure: call in TO RADIO (+grid, generate messages)
     void SetK3Meter(QString);//ik1hjs K3 ALC/PWR bar next to TX slider
     void SetModeGlobalFromRigCat(QString);
     

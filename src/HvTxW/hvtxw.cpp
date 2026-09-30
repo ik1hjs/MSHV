@@ -274,6 +274,7 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     connect(TRadioAndNetW,SIGNAL(EmitUdpConfigure(int)),this,SIGNAL(EmitUdpConfigure(int)));
     connect(TRadioAndNetW,SIGNAL(EmitUdpCmdStop(bool)),this,SIGNAL(EmitUdpCmdStop(bool)));
     connect(TRadioAndNetW,SIGNAL(EmitUdpTxDf(double)),this,SIGNAL(EmitUdpTxDf(double)));//ik1hjs
+    connect(TRadioAndNetW,SIGNAL(EmitUdpDxCall(QStringList)),this,SLOT(SetUdpDxCall(QStringList)));//ik1hjs
     connect(TRadioAndNetW,SIGNAL(EmitOpenRadNetWToRecon()),this,SLOT(NetW_exec()));
     connect(TRadioAndNetW,SIGNAL(EmitOtpTxKey(QString)),this,SIGNAL(EmitOtpTxKey(QString)));//2.76sf
     connect(TRadioAndNetW,SIGNAL(EmitOtpRxMsg(bool)),this,SIGNAL(EmitOtpRxMsg(bool)));//2.76sf
@@ -5174,6 +5175,18 @@ void HvTxW::SetUdpRxDf(double f)//ik1hjs
 void HvTxW::SetUdpTxDf(double f)//ik1hjs
 {
     TRadioAndNetW->SetUdpTxDf(f);
+}
+void HvTxW::SetUdpDxCall(QStringList l)//ik1hjs UDP Configure (type 15): "call","grid","1"=generate messages
+{   // same as typing the call in TO RADIO (and the grid in its field); AUTO / Enable TX is never touched
+    if (l.count() < 3) return;
+    QString c = l.at(0).trimmed().toUpper();
+    if (c.isEmpty() || c.count() > 15) return;
+    if (c != le_his_call->getText()) le_his_call->SetText(c);
+    QString g = l.at(1).trimmed().toUpper();
+    if (!g.isEmpty() && THvQthLoc.isValidLocator(g)) LeHisLoc->SetText(g);
+    if (l.at(2) == "1") gen_msg();
+    // UDP Status with the new DX call right away (so the sender can verify it), also in Multi Answering
+    SetDxParm(le_his_call->getText(),le_rst_tx->getText(),LeHisLoc->getText());
 }
 void HvTxW::SetTxRxCountAutoSeq(bool f)
 {
