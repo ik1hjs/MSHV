@@ -74,6 +74,8 @@ HvRigCat::HvRigCat( QWidget *parent )
     s_active_fact_id = -100;
     have_read_data_rts_on = 0;
     c_poll_comm = -1;
+    s_meter_rig = false;//ik1hjs
+    c_meter_poll = 0;//ik1hjs
     s_port_type = RIG_PORT_NONE;
     s_port_poen = false;
     vita_rx = 0;
@@ -366,6 +368,7 @@ void HvRigCat::SetRig(int index)
     s_active_model_id = -100;
     s_active_fact_id = -100;
     f_rig_active_never_stop = false;//2.76.1 Flex Slice
+    s_meter_rig = false;//ik1hjs
 
     have_read_data_rts_on = 0;
 
@@ -442,6 +445,7 @@ void HvRigCat::SetRig(int index)
     else if (rstruc.facid == ELECRAFT_ID)
     {
         Elecraft *TElecraft = new Elecraft(rstruc.model);
+        s_meter_rig = rstruc.name.contains("K3");//ik1hjs
         connect(this, SIGNAL(SetCmd(CmdID,ptt_t,QString)), TElecraft, SLOT(SetCmd(CmdID,ptt_t,QString)));
         connect(TElecraft, SIGNAL(EmitRigSet(RigSet)), this, SLOT(SetRigSet(RigSet)));
         connect(TElecraft, SIGNAL(EmitWriteCmd(char*,int)), this, SLOT(SetWriteCmd(char*,int)));
@@ -805,7 +809,8 @@ void HvRigCat::SetWriteCmd(char*data,int size)
     //if (s_port_type == RIG_PORT_SERIAL && s_port_poen) // && s_cb_read_data_rts_on
     if ((s_port_type == RIG_PORT_SERIAL || s_port_type == RIG_PORT_NETWORK) && s_port_poen)
     {
-        polling_timer->start(sb_pollint->value());
+        if (s_f_ptt && s_meter_rig) polling_timer->start(400);//ik1hjs faster meter while transmitting
+        else polling_timer->start(sb_pollint->value());
     }
 }
 void HvRigCat::StartPttTimer()
@@ -822,6 +827,7 @@ void HvRigCat::set_ptt(bool f, bool imd)//2.38  immediately
     {
         polling_timer->stop();
         s_f_ptt = f;
+        if (!f && s_meter_rig) emit EmitGetedMeter("RX");//ik1hjs
         if (imd) //2.38 immediately
             StartPttTimer();
         else
@@ -864,6 +870,7 @@ void HvRigCat::SetReadedInfo(CmdID i,QString str)
         emit EmitGetedFreq(str);
     }
     else if (i==GET_MODE) emit EmitGetedMode(str);
+    else if (i==GET_METER) emit EmitGetedMeter(str);//ik1hjs
     //qDebug()<<"READ INFO="<<i<<str;
 }
 void HvRigCat::StartStopPollingTimer(bool popen)/*, bool read_data_rts_on*/
@@ -902,6 +909,15 @@ void HvRigCat::get_mode()
 } //int t = 1;
 void HvRigCat::PollingTimerReadRig()
 {
+    if (s_f_ptt && s_meter_rig)//ik1hjs while transmitting read the K3 meter, freq only every 4th poll
+    {
+        c_meter_poll++;
+        if ((c_meter_poll & 3) != 0)
+        {
+            emit SetCmd(GET_METER,RIG_PTT_OFF,"");//RIG_PTT_OFF fictive
+            return;
+        }
+    }
     c_poll_comm++;
     if (c_poll_comm==0)
     {

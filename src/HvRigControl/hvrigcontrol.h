@@ -156,6 +156,7 @@ signals:
     void EmitTxWatchdogParms(int,int,int);
     void EmitGetedFreq(QString s);
     void EmitGetedMode(QString s); 
+    void EmitGetedMeter(QString s);//ik1hjs K3 TX meter
     void EmitModSetFrqToRig(bool);
     void EmitQrgActive(int i);//2.45
     void EmitQrgFromRig(QString);//2.45

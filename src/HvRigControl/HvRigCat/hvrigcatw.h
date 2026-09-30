@@ -119,6 +119,7 @@ signals:
     void EmitReadyRead(QByteArray,int);
     void EmitGetedFreq(QString);
     void EmitGetedMode(QString);
+    void EmitGetedMeter(QString);//ik1hjs K3 TX meter
     void EmitOnOffCatCommand(bool,int,int);
     void EmitRigCatActiveAndReadF(bool);
     //void EmitReadDataRtsOnTrue(bool);
@@ -187,6 +188,8 @@ private:
     //QextSerialPort *port;
 //////////////////////////////////////////////
     bool s_f_ptt;
+    bool s_meter_rig;//ik1hjs K3: read TX meter while transmitting
+    int c_meter_poll;//ik1hjs
     int tci_select;
     int max4min;
     bool f_rig_active_never_stop;//2.76.1 Flex Slice

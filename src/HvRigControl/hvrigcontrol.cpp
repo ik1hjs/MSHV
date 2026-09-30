@@ -777,6 +777,7 @@ HvRigControl::HvRigControl( QWidget *parent )
     connect(THvRigCat, SIGNAL(EmitSetRigSet(RigSet,int,int)), this, SLOT(SetRigSet(RigSet,int,int)));
     connect(THvRigCat, SIGNAL(EmitGetedFreq(QString)), this, SLOT(SetGetedFreq(QString)));
     connect(THvRigCat, SIGNAL(EmitGetedMode(QString)), this, SLOT(SetGetedMode(QString)));
+    connect(THvRigCat, SIGNAL(EmitGetedMeter(QString)), this, SIGNAL(EmitGetedMeter(QString)));//ik1hjs
     connect(THvRigCat, SIGNAL(EmitPttDtr(bool)), this, SLOT(SetPttDtr(bool)));// sea-235
     connect(THvRigCat, SIGNAL(EmitFullRigInfo(QString)), this, SLOT(SetFullRigInfo(QString)));//2.76.1 for pskreporter
     //connect(THvRigCat, SIGNAL(EmitFlexSliceReady()), this, SIGNAL(EmitFlexSliceReady()));//flex native vita-49

@@ -76,6 +76,7 @@ typedef enum
     GET_FREQ,
     SET_MODE,
     GET_MODE,          
+    GET_METER,      //ik1hjs K3 TX meter (TM; BG;)
 }CmdID;
 
 #endif

@@ -18,6 +18,7 @@ Elecraft::Elecraft(int ModelID,QWidget *parent)
     s_rig_name = rigs_elecraft[s_ModelID].name;
     s_CmdID = -1;
     s_read_array.clear();
+    s_tm = -1;//ik1hjs
     ////////////////////////////////////////////////////////end new read com
 }
 
@@ -50,6 +51,9 @@ void Elecraft::SetCmd(CmdID i,ptt_t ptt,QString str)
     case GET_MODE:
         s_CmdID = GET_MODE;
         get_mode();
+        break;
+    case GET_METER://ik1hjs
+        get_meter();
         break;
         ////////////////////////////////////////////////////////end new read com
     }
@@ -190,6 +194,13 @@ void Elecraft::get_mode()
     emit EmitWriteCmd(cmdnc,len);
 }
 
+void Elecraft::get_meter()//ik1hjs K3: TM; = meter mode (TM0 PWR/SWR, TM1 CMP/ALC), BG; = bargraph
+{
+    if (!s_rig_name.contains("K3")) return;
+    char *cmdnc = (char *)"TM;BG;";
+    int len = strlen(cmdnc);
+    emit EmitWriteCmd(cmdnc,len);
+}
 void Elecraft::SetReadyRead(QByteArray ar,int size0)
 {
     for (int i = 0; i < size0; i++)
@@ -239,6 +250,16 @@ void Elecraft::SetReadyRead(QByteArray ar,int size0)
                     emit EmitReadedInfo(GET_MODE,smode);
                     s_CmdID = -1;//I Find my answer no need more
                 }
+            }
+            //ik1hjs K3 meter: TM0/TM1 and BGnnR / BGnnT (K3), BGnn (KX3)
+            if (size==3 && s_read_array[0]==(char)0x54 && s_read_array[1]==(char)0x4d)
+                s_tm = s_read_array[2]-'0';
+            if (size>=4 && s_read_array[0]==(char)0x42 && s_read_array[1]==(char)0x47)
+            {
+                int nn = s_read_array.mid(2,2).toInt();
+                QString tr = "?";
+                if (size>=5) tr = QString(s_read_array.mid(4,1));
+                emit EmitReadedInfo(GET_METER,QString("%1;%2;%3").arg(nn).arg(tr).arg(s_tm));
             }
             s_read_array.clear();
         }

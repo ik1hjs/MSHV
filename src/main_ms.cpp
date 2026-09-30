@@ -289,6 +289,13 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     // Native Flex VITA-49 meter: forward power + SWR read from the radio's own
     // FWDPWR/REFPWR/SWR meters. Hidden unless the Flex backend is transmitting,
     // so it is invisible to anyone not using a FlexRadio.
+    l_k3_meter = new QLabel("");//ik1hjs K3 ALC/PWR bargraph read by CAT (TM; BG;) while transmitting
+    l_k3_meter->setFixedHeight(19);
+    l_k3_meter->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    l_k3_meter->setMinimumWidth(190);
+    l_k3_meter->setAlignment(Qt::AlignCenter);
+    l_k3_meter->setToolTip("K3 METER=ALC: ALC 0-7   METER=PWR: potenza 0-12   (CAT TM; BG;)");
+    l_k3_meter->hide();
     l_flex_meter = new QLabel("");
     l_flex_meter->setFixedHeight(19);
     l_flex_meter->setFrameStyle(QFrame::Panel | QFrame::Sunken);
@@ -818,6 +825,7 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     //connect(THvTxW, SIGNAL(EmitModeGlobalToRig(QString)), THvRigControl, SLOT(SetMode(QString)));//1.61= stop for the moment
     connect(THvRigControl, SIGNAL(EmitGetedFreq(QString)), THvTxW, SLOT(SetFreqGlobalFromRigCat(QString)));//1.61=
     connect(THvRigControl, SIGNAL(EmitGetedMode(QString)), THvTxW, SLOT(SetModeGlobalFromRigCat(QString)));//1.61=
+    connect(THvRigControl, SIGNAL(EmitGetedMeter(QString)), this, SLOT(SetK3Meter(QString)));//ik1hjs
     connect(THvRigControl, SIGNAL(EmitTxActive(int)), THvTxW, SLOT(SetTxActive(int)));//2.21
     connect(THvRigControl, SIGNAL(EmitRigCatActiveAndRead(bool,QString)), THvTxW, SLOT(SetRigCatActiveAndRead(bool,QString)));//2.53 //2.76.1    
 
@@ -1264,6 +1272,7 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     // Flex Panel
     QHBoxLayout *H_lflex = new QHBoxLayout();
     H_lflex->setContentsMargins(0,0,0,0);
+    H_lflex->addWidget(l_k3_meter);//ik1hjs
     H_lflex->addWidget(l_flex_meter);
     H_lflex->addWidget(pb_flex_panel);
     H_lflex->setAlignment(Qt::AlignCenter | Qt::AlignHCenter);
@@ -2648,6 +2657,35 @@ void Main_Ms::ModeMenuStatRefresh(bool dea)
     }
 }
 
+void Main_Ms::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or "RX" at end of TX
+{
+    if (!l_k3_meter->isVisible()) l_k3_meter->show();
+    if (s=="RX")
+    {
+        l_k3_meter->setStyleSheet("QLabel{color:gray;}");//keep last TX reading, greyed
+        return;
+    }
+    QStringList l = s.split(";");
+    if (l.count()<3) return;
+    if (l.at(1)=="R") return;//receive: BG is the S-meter, not shown here
+    int nn = l.at(0).toInt();
+    int tm = l.at(2).toInt();
+    int max = 12;
+    QString name = "PWR";
+    if (tm==1) { max = 7; name = "ALC"; }
+    else if (tm<0) name = "BAR";
+    if (nn>max) nn = max;
+    if (nn<0) nn = 0;
+    QString bar = QString(nn,QChar(0x25A0)) + QString(max-nn,QChar(0x25A1));
+    l_k3_meter->setText(QString("K3 %1 %2 %3/%4").arg(name).arg(bar).arg(nn).arg(max));
+    QString col = "";
+    if (tm==1)
+    {
+        if (nn>=6) col = "QLabel{color:rgb(255,60,60);font-weight:bold;}";
+        else if (nn>=1) col = "QLabel{color:rgb(0,170,0);font-weight:bold;}";
+    }
+    l_k3_meter->setStyleSheet(col);
+}
 // Native Flex VITA-49 backend (network.cpp): live TX metering off the radio.
 void Main_Ms::UpdateFlexMeter(bool up,bool is_meter,double fwd,double swr)
 {

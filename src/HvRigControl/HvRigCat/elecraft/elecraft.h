@@ -42,6 +42,8 @@ private:
     void get_freq();
     void set_mode(QString);
     void get_mode();
+    void get_meter();//ik1hjs
+    int s_tm;//ik1hjs K3 meter mode 0=PWR/SWR 1=CMP/ALC -1=unknown
     ////////////////////////////////////////////////////////end new read com
 protected:
 
