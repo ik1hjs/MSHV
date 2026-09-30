@@ -517,7 +517,7 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     pb_k3->setRange(0,7);
     pb_k3->setValue(0);
     pb_k3->setTextVisible(false);
-    pb_k3->setFixedSize(14,Slider_Tx_level->height());//same height as the TX slider: the panel must not grow
+    pb_k3->setFixedSize(14,Slider_Tx_level->height()-8);//-8: room for the "A" checkbox//same height as the TX slider: the panel must not grow
     QVBoxLayout *V_k3 = new QVBoxLayout();
     V_k3->setContentsMargins(3,0,0,0);
     V_k3->setSpacing(1);
@@ -527,12 +527,22 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     V_k3->setAlignment(pb_k3,Qt::AlignHCenter);
     V_k3->addWidget(l_k3_val);
     V_k3->setAlignment(l_k3_val,Qt::AlignCenter);
+    cb_k3_auto = new QCheckBox("A");
+    cb_k3_auto->setToolTip("Regolazione automatica del livello TX: dopo ogni trasmissione abbassa il cursore TX se l'ALC supera la 5a tacca, lo alza di poco se resta sotto la 4a");
+    cb_k3_auto->setChecked(true);
+    V_k3->addWidget(cb_k3_auto);
+    V_k3->setAlignment(cb_k3_auto,Qt::AlignCenter);
     w_k3 = new QWidget();
     w_k3->setLayout(V_k3);
     w_k3->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     V_k3->setAlignment(Qt::AlignVCenter);
     w_k3->setToolTip("K3: METER=ALC -> ALC 0-7, METER=PWR -> potenza 0-12 (CAT TM; BG;)");
     w_k3->hide();//shown at the first reading (only with an Elecraft K3)
+    k3_peak = 0;
+    k3_tm = 1;
+    k3_in_tx = false;
+    k3_seen_tx = false;
+    k3_t_rx = 0;
     H_tx->addWidget(w_k3);
     //H_tx->setAlignment(Qt::AlignHCenter);
 
@@ -5071,9 +5081,16 @@ void HvTxW::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or 
         return;
     }
     if (w_k3->isHidden()) w_k3->show();
-    if (s=="RX")
+    qint64 now = QDateTime::currentMSecsSinceEpoch();
+    if (s=="RX")//end of TX (or first CAT answer): hold the peak of the last transmission
     {
-        l_k3_val->setStyleSheet("QLabel{color:gray;}");//keep last TX reading, greyed
+        k3_in_tx = false;
+        k3_t_rx = now;
+        if (k3_seen_tx)
+        {
+            ShowK3Value(k3_peak,true);
+            if (cb_k3_auto->isChecked()) K3AutoLevel();
+        }
         return;
     }
     QStringList l = s.split(";");
@@ -5089,12 +5106,43 @@ void HvTxW::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or 
     if (nn<0) nn = 0;
     l_k3_name->setText(name);
     pb_k3->setRange(0,max);
-    pb_k3->setValue(nn);
-    l_k3_val->setText(QString("%1").arg(nn));
-    QString col = "rgb(70,130,220)";//PWR
-    if (tm==1)
+    k3_tm = tm;
+    if (!k3_in_tx)
     {
-        if (nn>=6) col = "rgb(230,40,40)";
+        if (k3_seen_tx && now - k3_t_rx < 3000)//late answer after the end of TX: only update the held peak
+        {
+            if (nn>k3_peak) k3_peak = nn;
+            ShowK3Value(k3_peak,true);
+            return;
+        }
+        k3_in_tx = true;//new transmission: restart the peak
+        k3_seen_tx = true;
+        k3_peak = 0;
+    }
+    if (nn>k3_peak) k3_peak = nn;
+    ShowK3Value(nn,false);
+}
+void HvTxW::K3AutoLevel()//ik1hjs after each TX move the TX level slider to keep the K3 ALC peak at 4-5 bars
+{
+    if (k3_tm!=1 || k3_peak<=0) return;//only with METER=ALC and some ALC reading
+    int v = s_tx_level[s_iband];
+    int nv = v;
+    if (k3_peak>=7) nv = v-5;
+    else if (k3_peak==6) nv = v-3;
+    else if (k3_peak<=3) nv = v+1;
+    if (nv<10) nv = 10;
+    if (nv>100) nv = 100;
+    if (nv!=v) Slider_Tx_level->SetValue(nv);//emits SendValue -> StndOutLevel_s: saved per band like a manual move
+}
+void HvTxW::ShowK3Value(int nn,bool peak)//ik1hjs peak=true: held peak shown in receive
+{
+    pb_k3->setValue(nn);
+    if (peak) l_k3_val->setText(QString("pk%1").arg(nn));
+    else l_k3_val->setText(QString("%1").arg(nn));
+    QString col = "rgb(70,130,220)";//PWR
+    if (k3_tm==1)
+    {
+        if (nn>=6) col = "rgb(230,40,40)";//over the 5th bar: red
         else col = "rgb(0,180,0)";
     }
     pb_k3->setStyleSheet("QProgressBar{border:1px solid gray;background:rgb(40,40,40);}QProgressBar::chunk{background:"+col+";}");

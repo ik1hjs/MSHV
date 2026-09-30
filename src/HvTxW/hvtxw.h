@@ -9,6 +9,8 @@
 
 #include <QLabel>
 #include <QProgressBar>//ik1hjs
+#include <QDateTime>//ik1hjs
+#include <QCheckBox>//ik1hjs
 #include "../config_str_all.h"
 class HvLabAutoSeq : public QLabel
 {
@@ -688,6 +690,14 @@ private:
     QLabel *l_k3_name;//ik1hjs
     QLabel *l_k3_val;//ik1hjs
     QProgressBar *pb_k3;//ik1hjs
+    int k3_peak;//ik1hjs peak of the current/last transmission
+    int k3_tm;//ik1hjs 1=ALC 0=PWR
+    bool k3_in_tx;//ik1hjs
+    bool k3_seen_tx;//ik1hjs
+    qint64 k3_t_rx;//ik1hjs ms of the last end of TX
+    void ShowK3Value(int,bool);//ik1hjs
+    QCheckBox *cb_k3_auto;//ik1hjs automatic TX level from the K3 ALC
+    void K3AutoLevel();//ik1hjs
     QLabel *l_trxmi;
     QLabel *l_trxdp;
     QLabel *l_trxdm;
