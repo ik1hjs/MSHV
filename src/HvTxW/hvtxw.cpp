@@ -5135,8 +5135,16 @@ void HvTxW::K3AutoLevel(int nn,qint64 now)//ik1hjs during TX move the TX level s
     int nv = v;
     if (nn>=7) nv = v-8;//the audio level is applied live: the change works inside this same TX
     else if (nn==6) nv = v-3;
-    else if (nn>=1 && nn<=2) nv = v+2;//0 = no audio (end of message): never raise on 0
+    else if (nn>=1 && nn<=2) nv = v+2;
     else if (nn>=3 && nn<=4) nv = v+1;
+    else if (nn==0)//no ALC: drive too low, but only while the message audio is surely playing (not at its end)
+    {
+        qint64 audio_ms = 10000;
+        if (s_mode==11) audio_ms = 12000;//FT8 message 12.6 s
+        else if (s_mode==13) audio_ms = 4800;//FT4 5.0 s
+        else if (s_mode==18) audio_ms = 2200;//FT2
+        if (now - k3_t_tx < audio_ms) nv = v+5;
+    }
     if (nv<10) nv = 10;
     if (nv>100) nv = 100;
     if (nv!=v)
