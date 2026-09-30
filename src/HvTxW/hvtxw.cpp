@@ -528,7 +528,7 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     V_k3->addWidget(l_k3_val);
     V_k3->setAlignment(l_k3_val,Qt::AlignCenter);
     cb_k3_auto = new QCheckBox("A");
-    cb_k3_auto->setToolTip("Regolazione automatica del livello TX: dopo ogni trasmissione abbassa il cursore TX se l'ALC supera la 5a tacca, lo alza di poco se resta sotto la 4a");
+    cb_k3_auto->setToolTip("Regolazione automatica del livello TX durante la trasmissione: tiene l'ALC del K3 sulla 5a tacca (abbassa il cursore TX sopra la 5a, lo alza piano sotto)");
     cb_k3_auto->setChecked(true);
     V_k3->addWidget(cb_k3_auto);
     V_k3->setAlignment(cb_k3_auto,Qt::AlignCenter);
@@ -543,6 +543,8 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     k3_in_tx = false;
     k3_seen_tx = false;
     k3_t_rx = 0;
+    k3_t_tx = 0;
+    k3_t_adj = 0;
     H_tx->addWidget(w_k3);
     //H_tx->setAlignment(Qt::AlignHCenter);
 
@@ -5089,7 +5091,6 @@ void HvTxW::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or 
         if (k3_seen_tx)
         {
             ShowK3Value(k3_peak,true);
-            if (cb_k3_auto->isChecked()) K3AutoLevel();
         }
         return;
     }
@@ -5118,21 +5119,31 @@ void HvTxW::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or 
         k3_in_tx = true;//new transmission: restart the peak
         k3_seen_tx = true;
         k3_peak = 0;
+        k3_t_tx = now;
+        k3_t_adj = 0;
     }
     if (nn>k3_peak) k3_peak = nn;
     ShowK3Value(nn,false);
+    if (cb_k3_auto->isChecked()) K3AutoLevel(nn,now);
 }
-void HvTxW::K3AutoLevel()//ik1hjs after each TX move the TX level slider to keep the K3 ALC peak at 4-5 bars
+void HvTxW::K3AutoLevel(int nn,qint64 now)//ik1hjs during TX move the TX level slider to keep the K3 ALC on the 5th bar
 {
-    if (k3_tm!=1 || k3_peak<=0) return;//only with METER=ALC and some ALC reading
+    if (k3_tm!=1) return;//only with METER=ALC
+    if (now - k3_t_tx < 1500) return;//TX ramp-up
+    if (now - k3_t_adj < 900) return;//let audio and ALC settle after the last change
     int v = s_tx_level[s_iband];
     int nv = v;
-    if (k3_peak>=7) nv = v-5;
-    else if (k3_peak==6) nv = v-3;
-    else if (k3_peak<=3) nv = v+1;
+    if (nn>=7) nv = v-8;//the audio level is applied live: the change works inside this same TX
+    else if (nn==6) nv = v-3;
+    else if (nn>=1 && nn<=2) nv = v+2;//0 = no audio (end of message): never raise on 0
+    else if (nn>=3 && nn<=4) nv = v+1;
     if (nv<10) nv = 10;
     if (nv>100) nv = 100;
-    if (nv!=v) Slider_Tx_level->SetValue(nv);//emits SendValue -> StndOutLevel_s: saved per band like a manual move
+    if (nv!=v)
+    {
+        Slider_Tx_level->SetValue(nv);//emits SendValue -> StndOutLevel_s: saved per band like a manual move
+        k3_t_adj = now;
+    }
 }
 void HvTxW::ShowK3Value(int nn,bool peak)//ik1hjs peak=true: held peak shown in receive
 {

@@ -697,7 +697,9 @@ private:
     qint64 k3_t_rx;//ik1hjs ms of the last end of TX
     void ShowK3Value(int,bool);//ik1hjs
     QCheckBox *cb_k3_auto;//ik1hjs automatic TX level from the K3 ALC
-    void K3AutoLevel();//ik1hjs
+    void K3AutoLevel(int,qint64);//ik1hjs
+    qint64 k3_t_tx;//ik1hjs start of the current TX
+    qint64 k3_t_adj;//ik1hjs last automatic change
     QLabel *l_trxmi;
     QLabel *l_trxdp;
     QLabel *l_trxdm;
