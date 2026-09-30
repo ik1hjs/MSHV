@@ -509,6 +509,31 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     H_tx->addLayout(V_rx_1);
     H_tx->addLayout(V_l);
     H_tx->addLayout(V_tx_1);
+    //ik1hjs K3 ALC (or PWR) bar read by CAT while transmitting, next to the TX level slider
+    l_k3_name = new QLabel("ALC");
+    l_k3_val = new QLabel("-");
+    pb_k3 = new QProgressBar();
+    pb_k3->setOrientation(Qt::Vertical);
+    pb_k3->setRange(0,7);
+    pb_k3->setValue(0);
+    pb_k3->setTextVisible(false);
+    pb_k3->setFixedSize(14,Slider_Tx_level->height());//same height as the TX slider: the panel must not grow
+    QVBoxLayout *V_k3 = new QVBoxLayout();
+    V_k3->setContentsMargins(3,0,0,0);
+    V_k3->setSpacing(1);
+    V_k3->addWidget(l_k3_name);
+    V_k3->setAlignment(l_k3_name,Qt::AlignCenter);
+    V_k3->addWidget(pb_k3);
+    V_k3->setAlignment(pb_k3,Qt::AlignHCenter);
+    V_k3->addWidget(l_k3_val);
+    V_k3->setAlignment(l_k3_val,Qt::AlignCenter);
+    w_k3 = new QWidget();
+    w_k3->setLayout(V_k3);
+    w_k3->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    V_k3->setAlignment(Qt::AlignVCenter);
+    w_k3->setToolTip("K3: METER=ALC -> ALC 0-7, METER=PWR -> potenza 0-12 (CAT TM; BG;)");
+    w_k3->hide();//shown at the first reading (only with an Elecraft K3)
+    H_tx->addWidget(w_k3);
     //H_tx->setAlignment(Qt::AlignHCenter);
 
     //QFrame *Box_in_tx = new QFrame();
@@ -5037,6 +5062,38 @@ void HvTxW::CountTx73_p(bool svlog)
         }
         else count_73_auto_seq++;
     }
+}
+void HvTxW::SetK3Meter(QString s)//ik1hjs "nn;T/R;tm" from Elecraft TM; BG;  or "RX" at end of TX
+{
+    if (w_k3->isHidden()) w_k3->show();
+    if (s=="RX")
+    {
+        l_k3_val->setStyleSheet("QLabel{color:gray;}");//keep last TX reading, greyed
+        return;
+    }
+    QStringList l = s.split(";");
+    if (l.count()<3) return;
+    if (l.at(1)=="R") return;//receive: BG is the S-meter, not shown here
+    int nn = l.at(0).toInt();
+    int tm = l.at(2).toInt();
+    int max = 12;
+    QString name = "PWR";
+    if (tm==1) { max = 7; name = "ALC"; }
+    else if (tm<0) name = "BAR";
+    if (nn>max) nn = max;
+    if (nn<0) nn = 0;
+    l_k3_name->setText(name);
+    pb_k3->setRange(0,max);
+    pb_k3->setValue(nn);
+    l_k3_val->setText(QString("%1").arg(nn));
+    QString col = "rgb(70,130,220)";//PWR
+    if (tm==1)
+    {
+        if (nn>=6) col = "rgb(230,40,40)";
+        else col = "rgb(0,180,0)";
+    }
+    pb_k3->setStyleSheet("QProgressBar{border:1px solid gray;background:rgb(40,40,40);}QProgressBar::chunk{background:"+col+";}");
+    l_k3_val->setStyleSheet("QLabel{font-weight:bold;color:"+col+";}");
 }
 void HvTxW::SetUdpRxDf(double f)//ik1hjs
 {

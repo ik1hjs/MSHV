@@ -8,6 +8,7 @@
 #include <QWidget>
 
 #include <QLabel>
+#include <QProgressBar>//ik1hjs
 #include "../config_str_all.h"
 class HvLabAutoSeq : public QLabel
 {
@@ -300,6 +301,7 @@ public slots:
     void SetFreqGlobalFromRigCat(QString);
     void SetUdpRxDf(double);//ik1hjs
     void SetUdpTxDf(double);//ik1hjs
+    void SetK3Meter(QString);//ik1hjs K3 ALC/PWR bar next to TX slider
     void SetModeGlobalFromRigCat(QString);
     
     void SetTxWatchdogParms(int,int,int);
@@ -682,6 +684,10 @@ private:
     void ResetTxWatchdog(QString,bool,bool);
     //HvAstroDataW *THvAstroDataW;
     QLabel *l_trxmx;
+    QWidget *w_k3;//ik1hjs K3 meter
+    QLabel *l_k3_name;//ik1hjs
+    QLabel *l_k3_val;//ik1hjs
+    QProgressBar *pb_k3;//ik1hjs
     QLabel *l_trxmi;
     QLabel *l_trxdp;
     QLabel *l_trxdm;

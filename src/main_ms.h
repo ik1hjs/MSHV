@@ -61,7 +61,6 @@ public:
 private slots:
     // Native Flex VITA-49: live forward power / SWR straight off the radio.
     void UpdateFlexMeter(bool,bool,double,double);
-    void SetK3Meter(QString);//ik1hjs K3 ALC/PWR bargraph
     
 	void SetTxFreq(double);//2.16
 	void SetStaticTxFrq(bool,int);//2.16
@@ -262,7 +261,6 @@ private:
     bool f_tune;
     QLabel *l_tx_text;
     
-    QLabel *l_k3_meter;//ik1hjs
     QLabel *l_flex_meter;        // Flex fwd power / SWR; hidden unless active
     QPushButton *pb_flex_panel;  // opens the Flex control/monitor panel
 
