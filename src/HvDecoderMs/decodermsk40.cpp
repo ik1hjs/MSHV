@@ -850,6 +850,12 @@ void DecoderMs::SetCalsHashFileOpen(QString str)
 void DecoderMs::SetCalsHash(QStringList l)
 {
     if (l.count()<6) return;
+    if (thred_busy)//ik1hjs: defer while decode threads run
+    {
+        pend_hash_lst = l;
+        f_pend_hash = true;
+        return;
+    }
 
     hash_msk40_all_calls(0,l.at(0)+" "+l.at(1));//prav    hash_msk40_all_rpt
     hash_msk40_all_calls(1,l.at(1)+" "+l.at(0));//obraten hash_msk40_all_rpt

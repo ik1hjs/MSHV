@@ -1354,6 +1354,14 @@ private:
 
 protected:
     bool thred_busy;
+    // ik1hjs: callsign changes are deferred while the decoder threads run
+    bool f_pend_words;
+    QStringList pend_words_lst;
+    int pend_words_cq;
+    int pend_words_type;
+    bool f_pend_hash;
+    QStringList pend_hash_lst;
+    void ApplyPendingWords();
     int s_static_dat_count;
     double s_in_istart;
     int s_mousebutton;

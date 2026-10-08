@@ -266,6 +266,10 @@ DecoderMs::DecoderMs(QString p)//QObject *parent
     G_SwlOpt = false;//1.31 default
     s_nzap = false;//ZAP
     thred_busy = false;
+    f_pend_words = false;
+    pend_words_cq = 0;
+    pend_words_type = 0;
+    f_pend_hash = false;
     s_time = "000000";
     s_time_last = "000001";
     s_static_dat_count = 0;// for thread decode
@@ -548,8 +552,30 @@ c222:
     }
     return msg;
 }
+void DecoderMs::ApplyPendingWords()//ik1hjs: called from GUI thread when no decode thread is running
+{
+    if (f_pend_words)
+    {
+        f_pend_words = false;
+        SetWords(pend_words_lst,pend_words_cq,pend_words_type);
+    }
+    if (f_pend_hash)
+    {
+        f_pend_hash = false;
+        SetCalsHash(pend_hash_lst);
+    }
+}
 void DecoderMs::SetWords(QStringList lst,int cont_cq,int cont_type)
 {
+    if (lst.count()<3) return;//ik1hjs
+    if (thred_busy)//ik1hjs: do not touch decoder statics/hash tables while decoding -> crash
+    {
+        pend_words_lst = lst;
+        pend_words_cq = cont_cq;
+        pend_words_type = cont_type;
+        f_pend_words = true;
+        return;
+    }
     //from here for cqstr in ft4
     if (!lst.at(0).isEmpty())
     {
@@ -2600,6 +2626,7 @@ void DecoderMs::SetDecode(int *raw,int count_q,QString time,int t_istart,int mou
     }
     else s_static_dat_count = fmin(30*DEC_SAMPLE_RATE,count_q);//max 30sec static dufer for decode thread        
     //////////// END Minimum Count For Decode from mode in 1.46 realy this is from second display data ////////
+    ApplyPendingWords();//ik1hjs: apply callsign changes made during the previous decode
     thred_busy = true;//critical -> hv need to be after all return
 
     //kkk = false;
