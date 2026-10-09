@@ -11,6 +11,7 @@
 #include <QProgressBar>//ik1hjs
 #include <QDateTime>//ik1hjs
 #include <QCheckBox>//ik1hjs
+#include <QKeyEvent>//ik1hjs
 #include "../config_str_all.h"
 class HvLabAutoSeq : public QLabel
 {
@@ -130,6 +131,17 @@ private:
     void closeEvent(QCloseEvent*)
     { 
     	emit EmitClose(); 
+    };
+    //ik1hjs: Enter/Return in the Macros tab closes the window (same as X: saves and applies MY CALL)
+    void keyPressEvent(QKeyEvent *e)
+    {
+        if ((e->key()==Qt::Key_Return || e->key()==Qt::Key_Enter) && TW->currentIndex()==0 &&
+                (e->modifiers()==Qt::NoModifier || e->modifiers()==Qt::KeypadModifier))
+        {
+            close();
+            return;
+        }
+        QDialog::keyPressEvent(e);
     };
 };
 
