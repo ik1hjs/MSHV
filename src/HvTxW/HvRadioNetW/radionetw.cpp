@@ -21,6 +21,7 @@
 //#include <QTimer>
 
 #include "MessageClient.h"
+#include <QTimer>//ik1hjs
 
 //#include <QtGui>
 HvTcpClient::HvTcpClient(QObject *parent) : QObject(parent)
@@ -100,29 +101,39 @@ void HvTcpClient::disconnected_s()
     if (tray_once_agen)
     {
         tray_once_agen = false;
-        connectToHost();
+        //ik1hjs: never reconnect from inside a socket signal (re-entrancy -> QRingBuffer heap corruption crash)
+        QTimer::singleShot(300, this, SLOT(connectToHost()));
     }//qDebug()<<"disconnected_s=";
 }
 void HvTcpClient::DisconectOnly()
 {
 	//stat_disp = 0;
+    tray_once_agen = false;//ik1hjs
     if (socket->state() == QAbstractSocket::ConnectedState)
     {
         writeData("bye"); //qDebug()<<"DisconectOnly=";
+        socket->disconnectFromHost();//ik1hjs: flushes "bye" then closes, no synchronous wait
     }
+    else if (socket->state() != QAbstractSocket::UnconnectedState) socket->abort();//ik1hjs
 }
 void HvTcpClient::connectToHost()
 {
 	//stat_disp = 0;
     if (socket->state() == QAbstractSocket::ConnectedState)
     {
-        writeData("bye");
         tray_once_agen = true; //qDebug()<<"Disconnect="<<s_tcphost<<s_tcpport<<s_login_name<<tray_once_agen;
+        writeData("bye");
+        socket->disconnectFromHost();//ik1hjs: reconnect happens in disconnected_s() via timer
         return;
     } //qDebug()<<"connectToHost="<<s_tcphost<<s_tcpport<<s_login_name<<tray_once_agen;
+    if (socket->state() != QAbstractSocket::UnconnectedState)//ik1hjs: connecting/closing -> restart cleanly
+    {
+        tray_once_agen = false;
+        socket->abort();
+    }
     int p1 = s_tcpport.toInt();
     socket->connectToHost(s_tcphost, p1);
-    socket->waitForConnected(350);//importent for TCP hv
+    //ik1hjs: removed socket->waitForConnected(350): it runs a nested wait that re-enters readTelnet()
 }
 void HvTcpClient::readTelnet()
 {
@@ -203,10 +214,7 @@ bool HvTcpClient::writeData(QString str)
         str.append("\r\n");//end of msg
         QByteArray data = str.toUtf8();
         //socket->write(IntToArray(data.size())); //write size of data
-        socket->write(data); //write the data itself
-        //socket->write(result.toLocal8Bit());
-        //qDebug()<<"close"<<socket->readAll();
-        return socket->waitForBytesWritten(300); //500
+        return socket->write(data) == data.size(); //ik1hjs: async write; waitForBytesWritten() re-entered readTelnet() -> crash
     }
     else return false;
 }
