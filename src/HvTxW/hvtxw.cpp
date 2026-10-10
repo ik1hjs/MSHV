@@ -303,6 +303,7 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     fpsk_restrict = false;
 
     f_mod_set_frq_to_rig = true;//2.53 by default true
+    f_mode_from_udp = false;//ik1hjs
     s_start_qso_from_tx2 = false;
     f_multi_answer_mod = false;
     f_multi_answer_mod_std = false;
@@ -3274,7 +3275,7 @@ void HvTxW::ModeChanget(int mode,bool f)
 
     gen_msg();
 
-    if (!rig_cat_active_and_read || f_mod_set_frq_to_rig)//no read rig
+    if (!rig_cat_active_and_read || (f_mod_set_frq_to_rig && !f_mode_from_udp))//no read rig //ik1hjs: not when the mode comes from UDP
     {
         //qDebug()<<"Mode SET  100"<<s_band;
         SetDefFreqGlobal(1,"default");//2.74 0=mybe frq,no mod, 1=mybe frq,mod, 2=frq,mod, 3=frq,no mod

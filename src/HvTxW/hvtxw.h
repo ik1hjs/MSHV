@@ -360,6 +360,7 @@ public slots:
     void ShowBcnList();
     void SetStartFromTx2Tx1(bool);
     void SetModSetFrqToRig(bool);
+    void SetModeFromUdp(bool f){f_mode_from_udp=f;};//ik1hjs
     void SetUdpDecClr();
     void DlDetectTextInMsg(QString,QString &);
     void SetLogAutoComm(bool f);
@@ -479,6 +480,7 @@ private:
 	bool g_ub_m_k;	
 	bool prev_frest_;
     bool f_mod_set_frq_to_rig;
+    bool f_mode_from_udp;//ik1hjs: mode changed by UDP Configure (DX Alert/QRG): keep the rig frequency
 	QFrame *Box_in_tx;
 	int s_list_log_mark_txt_p1;
 	QStringList s_list_log_mark_txt;

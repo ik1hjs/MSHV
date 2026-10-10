@@ -3539,7 +3539,9 @@ void Main_Ms::SetUdpConfigure(int imode)//2.76.7
 {
 	if (imode == s_mode || f_tx_busy) return;//!Mode_m->isEnabled()
 	//if (!TMsPlayerHV->Is_RealStop() || THvTxW->GetAutoIsOn()) StopTxGlobal();
+    THvTxW->SetModeFromUdp(true);//ik1hjs: DX Alert has already tuned the rig to the spot, do not retune to the default freq
     rb_mode[imode]->setChecked(true);
+    THvTxW->SetModeFromUdp(false);//ik1hjs
 	/*int imode = -1; 
 	QString s = ls.at(0);
     for (int i = 0; i < COUNT_MODE; ++i)
