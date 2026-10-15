@@ -59,6 +59,7 @@ public:
 //signals:
         
 private slots:
+    void StartQrgAdvisor();//ik1hjs
     // Native Flex VITA-49: live forward power / SWR straight off the radio.
     void UpdateFlexMeter(bool,bool,double,double);
     

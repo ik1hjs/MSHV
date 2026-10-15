@@ -1249,6 +1249,11 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     Min_Menu->addMenu(lang_m);
     //// end Translation ////
     Min_Menu->addMenu(Help_m);
+    //ik1hjs: QRG Advisor started on demand from MSHV (it closes by itself when MSHV closes)
+    QAction *ac_qrg_adv = new QAction("QRG Advisor",this);
+    ac_qrg_adv->setToolTip("Avvia o mostra QRG Advisor (si chiude da solo quando chiudi MSHV)");
+    connect(ac_qrg_adv, SIGNAL(triggered()), this, SLOT(StartQrgAdvisor()));
+    Min_Menu->addAction(ac_qrg_adv);
 
     Min_Menu->setContentsMargins(4,0,4,0);//4,0,4,0 ( qreal left, qreal top, qreal right, qreal bottom )
     //Min_Menu->setFixedHeight(23);//1.56=off for +150%
@@ -5341,4 +5346,20 @@ void Main_Ms::keyPressEvent(QKeyEvent* event)
         QWidget::keyPressEvent(event);
     }
     //qDebug()<<"KeyHex="<<QString::number(event->key(),16);
+}
+
+//ik1hjs: start QRG Advisor (C:\Ham\QrgAdvisorGo) detached; if it is already running it only opens its window again
+#include <QProcess>
+#include <QFileInfo>
+void Main_Ms::StartQrgAdvisor()
+{
+    QString exe = "C:/Ham/QrgAdvisorGo/QrgAdvisorGo.exe";
+    QFileInfo fi(exe);
+    if (!fi.exists())
+    {
+        QMessageBox::warning(this,"MSHV","QRG Advisor non trovato:\nC:\\Ham\\QrgAdvisorGo\\QrgAdvisorGo.exe");
+        return;
+    }
+    if (!QProcess::startDetached(exe,QStringList(),fi.absolutePath()))
+        QMessageBox::warning(this,"MSHV","Impossibile avviare QRG Advisor");
 }
