@@ -3587,6 +3587,7 @@ void RadioAndNetW::set_halt_tx(bool f)
 }
 void RadioAndNetW::set_dx_call(QStringList l)//ik1hjs UDP Configure: DX call / grid / generate messages
 {
+    if (s_tx && !l.isEmpty() && l.at(0).trimmed() == "-") return;//ik1hjs never clear the DX while transmitting
     emit EmitUdpDxCall(l);
 }
 void RadioAndNetW::set_my_call(QString c)//ik1hjs UDP SetMyCall (51): change of operator from the panel, ignored while transmitting

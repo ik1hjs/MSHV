@@ -5182,6 +5182,12 @@ void HvTxW::SetUdpDxCall(QStringList l)//ik1hjs UDP Configure (type 15): "call",
 {   // same as typing the call in TO RADIO (and the grid in its field); AUTO / Enable TX is never touched
     if (l.count() < 3) return;
     QString c = l.at(0).trimmed().toUpper();
+    if (c == "-")//ik1hjs DX call "-" = clear the DX like the Reset QSO button (the panel sends it only with AUTO off)
+    {
+        ResetQSO_p(true);
+        SetDxParm(le_his_call->getText(),le_rst_tx->getText(),LeHisLoc->getText());
+        return;
+    }
     if (c.isEmpty() || c.count() > 15) return;
     if (c != le_his_call->getText()) le_his_call->SetText(c);
     QString g = l.at(1).trimmed().toUpper();
