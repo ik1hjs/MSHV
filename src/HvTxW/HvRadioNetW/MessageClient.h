@@ -76,6 +76,7 @@ public:
     Q_SIGNAL void set_tx_df(quint32);//ik1hjs
     Q_SIGNAL void set_my_call(QString);//ik1hjs SetMyCall (51)
     Q_SIGNAL void set_auto(bool);//ik1hjs SetAuto (52)
+    Q_SIGNAL void set_multi_answer(int);//ik1hjs SetMultiAnswer (53): 0 off, 1 DXpedition, 2 Standard
     Q_SIGNAL void set_dx_call(QStringList);//ik1hjs Configure: dx call, dx grid, "1"=generate messages
   	//Q_SIGNAL void reply (QTime, qint32 snr, float delta_time, quint32 delta_frequency, QString const& mode
                        //, QString const& message_text, bool low_confidence, quint8 modifiers);  	

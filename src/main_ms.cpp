@@ -1379,6 +1379,7 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
 
     connect(THvTxW, SIGNAL(EmitMessageS(QString,bool,bool)), this, SLOT(TxMessageS(QString,bool,bool)));
     connect(THvTxW, SIGNAL(EmitAuto()), this, SLOT(SetAuto()));
+    connect(THvTxW, SIGNAL(EmitUdpMultiAnswer(int)), this, SLOT(SetUdpMultiAnswer(int)));//ik1hjs
 
     //connect(THvMakros, SIGNAL(EmitRptRsq(bool)), THvTxW, SLOT(SetRptRsq(bool)));
     connect(THvTxW, SIGNAL(EmitMacros(int,QString)),this,SLOT(SetMacros(int,QString)));
@@ -1965,6 +1966,17 @@ void Main_Ms::SetMultiAnswerMod(bool f)
     THvTxW->SetMultiAnswerMod(Multi_answer_mod->isChecked(),Multi_answer_mod_std->isChecked());
     RefreshWindowTitle();
     RefreshCbCfm73();
+}
+void Main_Ms::SetUdpMultiAnswer(int m)//ik1hjs UDP SetMultiAnswer (53): like the Other Options menu
+{   // ignored where the menu is disabled (modes/contests without Multi Answering)
+    if (g_block_mam || !Multi_answer_mod->isEnabled()) return;
+    if (m == 1) Multi_answer_mod->setChecked(true);
+    else if (m == 2) Multi_answer_mod_std->setChecked(true);
+    else
+    {
+        Multi_answer_mod->setChecked(false);
+        Multi_answer_mod_std->setChecked(false);
+    }
 }
 void Main_Ms::SetMultiAnswerModStd(bool f)
 {

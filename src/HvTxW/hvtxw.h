@@ -388,6 +388,7 @@ signals:
     void EmitAstroWIsClosed();
     void EmitMessageS(QString msg,bool imidiatly,bool iftximid);
     void EmitAuto();
+    void EmitUdpMultiAnswer(int);//ik1hjs UDP SetMultiAnswer (53)
     void EmitFileNameChenged();
     void EmitDfSdbChanged(int,int);
     void EmitDfChanged(int,int);

@@ -306,6 +306,16 @@ void MessageClient::impl::parse_message(QByteArray const& msg)
                 }
             }
             break;
+        case NetworkMessage::SetMultiAnswer://ik1hjs
+            {
+                quint8 m {0};
+                in >> m;
+                if (check_status (in) != Fail)
+                {
+                    Q_EMIT self_->set_multi_answer(int(m));
+                }
+            }
+            break;
         case NetworkMessage::AnnotationInfo:
             {
                 /*QByteArray dx_call;

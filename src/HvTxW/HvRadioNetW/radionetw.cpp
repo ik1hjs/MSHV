@@ -1633,6 +1633,7 @@ RadioAndNetW::RadioAndNetW(QString inst,QString path,bool indsty,int x,int y,QWi
     connect(m_messageClientBroad, SIGNAL(set_dx_call(QStringList)), this, SLOT(set_dx_call(QStringList)));//ik1hjs
     connect(m_messageClientBroad, SIGNAL(set_my_call(QString)), this, SLOT(set_my_call(QString)));//ik1hjs
     connect(m_messageClientBroad, SIGNAL(set_auto(bool)), this, SIGNAL(EmitUdpAuto(bool)));//ik1hjs
+    connect(m_messageClientBroad, SIGNAL(set_multi_answer(int)), this, SIGNAL(EmitUdpMultiAnswer(int)));//ik1hjs
     connect(m_messageClientBroad, SIGNAL(ConectionInfo(QString)), this, SLOT(ConectionInfoBroad(QString)));
     connect(cb_udp_broad_log_qso, SIGNAL(toggled(bool)), this, SLOT(StartStopUdpBroad(bool)));
     connect(cb_udp_broad_log_adif, SIGNAL(toggled(bool)), this, SLOT(StartStopUdpBroad(bool)));

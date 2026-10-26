@@ -342,7 +342,8 @@ namespace NetworkMessage
                                 // immediately before here
       SetTxAudioFreq = 50,      // ik1hjs custom, not used by WSJT-X, in: quint32 TX audio freq Hz
       SetMyCall = 51,           // ik1hjs custom, in: utf8 MY CALL (applied like X in the Macros tab, ignored while transmitting)
-      SetAuto = 52              // ik1hjs custom, in: bool AUTO on/off, same as pressing the AUTO button when it differs
+      SetAuto = 52,             // ik1hjs custom, in: bool AUTO on/off, same as pressing the AUTO button when it differs
+      SetMultiAnswer = 53       // ik1hjs custom, in: quint8 Multi Answering 0 = off, 1 = MA DXpedition, 2 = MA Standard
     };
 
   quint32 constexpr pulse {15}; // seconds

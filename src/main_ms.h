@@ -81,6 +81,7 @@ private slots:
     void StartRxGlobal();
     void ModeChanged(bool);
     void SetAuto();
+    void SetUdpMultiAnswer(int);//ik1hjs
     void StopRxGlobal();
     void SetFileToDisplay();
     void SaveFileDisplay1();
