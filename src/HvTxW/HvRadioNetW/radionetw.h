@@ -296,6 +296,7 @@ signals:
     void EmitUdpTxDf(double);//ik1hjs
     void EmitUdpDxCall(QStringList);//ik1hjs
     void EmitUdpMyCall(QString);//ik1hjs
+    void EmitUdpAuto(bool);//ik1hjs
     void EmitOpenRadNetWToRecon();
     void EmitUploadClubLogInfo(QString);
     void EmitOtpTxKey(QString);

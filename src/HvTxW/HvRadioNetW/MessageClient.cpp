@@ -296,6 +296,16 @@ void MessageClient::impl::parse_message(QByteArray const& msg)
                 }
             }
             break;
+        case NetworkMessage::SetAuto://ik1hjs
+            {
+                bool on {false};
+                in >> on;
+                if (check_status (in) != Fail)
+                {
+                    Q_EMIT self_->set_auto(on);
+                }
+            }
+            break;
         case NetworkMessage::AnnotationInfo:
             {
                 /*QByteArray dx_call;

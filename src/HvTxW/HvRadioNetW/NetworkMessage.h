@@ -341,7 +341,8 @@ namespace NetworkMessage
       maximum_message_type_,    // ONLY add new message types
                                 // immediately before here
       SetTxAudioFreq = 50,      // ik1hjs custom, not used by WSJT-X, in: quint32 TX audio freq Hz
-      SetMyCall = 51            // ik1hjs custom, in: utf8 MY CALL (applied like X in the Macros tab, ignored while transmitting)
+      SetMyCall = 51,           // ik1hjs custom, in: utf8 MY CALL (applied like X in the Macros tab, ignored while transmitting)
+      SetAuto = 52              // ik1hjs custom, in: bool AUTO on/off, same as pressing the AUTO button when it differs
     };
 
   quint32 constexpr pulse {15}; // seconds
