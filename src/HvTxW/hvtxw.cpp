@@ -275,6 +275,7 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     connect(TRadioAndNetW,SIGNAL(EmitUdpCmdStop(bool)),this,SIGNAL(EmitUdpCmdStop(bool)));
     connect(TRadioAndNetW,SIGNAL(EmitUdpTxDf(double)),this,SIGNAL(EmitUdpTxDf(double)));//ik1hjs
     connect(TRadioAndNetW,SIGNAL(EmitUdpDxCall(QStringList)),this,SLOT(SetUdpDxCall(QStringList)));//ik1hjs
+    connect(TRadioAndNetW,SIGNAL(EmitUdpMyCall(QString)),THvMakros,SLOT(SetMyCallUdp(QString)));//ik1hjs
     connect(TRadioAndNetW,SIGNAL(EmitOpenRadNetWToRecon()),this,SLOT(NetW_exec()));
     connect(TRadioAndNetW,SIGNAL(EmitOtpTxKey(QString)),this,SIGNAL(EmitOtpTxKey(QString)));//2.76sf
     connect(TRadioAndNetW,SIGNAL(EmitOtpRxMsg(bool)),this,SIGNAL(EmitOtpRxMsg(bool)));//2.76sf

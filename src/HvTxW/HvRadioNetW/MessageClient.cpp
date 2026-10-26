@@ -286,6 +286,16 @@ void MessageClient::impl::parse_message(QByteArray const& msg)
                 }
             }
             break;
+        case NetworkMessage::SetMyCall://ik1hjs
+            {
+                QByteArray call;
+                in >> call;
+                if (check_status (in) != Fail)
+                {
+                    Q_EMIT self_->set_my_call(QString::fromUtf8(call));
+                }
+            }
+            break;
         case NetworkMessage::AnnotationInfo:
             {
                 /*QByteArray dx_call;

@@ -336,6 +336,12 @@ void HvMakros::TwTabClicked(int i)//2.68
     if (prev==0 && (i==1 || i==2)) gen_mess(); //qDebug()<<i;} // 1=NetW  2=RadFreq
     prev = i;
 }
+void HvMakros::SetMyCallUdp(QString c)//ik1hjs UDP SetMyCall (51): MY CALL from the panel, then saved and applied like X
+{
+    if (!THvQthLoc.isValidCallsign(c) || c == le_mycall->getText()) return;
+    le_mycall->SetText(c);
+    SetClose();
+}
 void HvMakros::SetClose()
 {
 	QString txtl = le_exchru->text();//2.74

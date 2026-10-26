@@ -58,6 +58,9 @@ public:
     void SetMacros();
     void ModeChanget(int mode);
     void SetFont(QFont);
+
+public slots:
+    void SetMyCallUdp(QString);//ik1hjs UDP SetMyCall (51)
     
 signals:
     void EmitMacros(QStringList,int cont_id,QString my_cont_exch,QString);//2.32
