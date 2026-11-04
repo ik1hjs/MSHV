@@ -200,6 +200,8 @@ public:
 
    	bool Insert(QStringList,bool,bool,int,bool,bool);
    	void SetMyCallGridExchAllCont(QString,QString,QString);	
+    void SetOperator(QString s){s_operator=s;};//ik1hjs
+    static QString OperatorFromComment(QString c);//ik1hjs "Op: XXX" in the comment
    	void IsCallDupeInLog(QString,QString,QString,int,bool &);
    	void SetFont(QFont f);
    	void SetSettings(QString); 
@@ -318,6 +320,7 @@ private:
     HvEditW *THvEditW;
     HvEditW *AddManQsoW;
     QString s_my_call;
+    QString s_operator;//ik1hjs
     QString s_my_grid;
     QString s_my_fd_exch;
     QString s_my_ru_exch;

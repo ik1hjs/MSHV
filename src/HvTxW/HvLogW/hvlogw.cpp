@@ -1706,6 +1706,7 @@ HvLogW::HvLogW(QString inst,QString app_path, bool indsty,int x,int y,QWidget *w
     //blosk_from_other_list = false;
     AppPath = app_path;
     s_my_call = "NONE";
+    s_operator = "";//ik1hjs
     s_my_grid = "NONE";
     s_my_fd_exch = "NONE";
     s_my_ru_exch = "NONE";
@@ -3316,6 +3317,8 @@ QString HvLogW::MakeAdifString(int l_row)
 
     s = s_my_call;//STATION_CALLSIGN
     out.append("<STATION_CALLSIGN:"+QString("%1").arg(s.count())+">"+s);
+    s = OperatorFromComment(THvLogList->model.item(l_row, 12)->text());//ik1hjs OPERATOR from "Op: XXX"
+    if (!s.isEmpty()) out.append("<OPERATOR:"+QString("%1").arg(s.count())+">"+s);
     s = s_my_grid;//MY_GRIDSQUARE
     out.append("<MY_GRIDSQUARE:"+QString("%1").arg(s.count())+">"+s);
 
@@ -3536,7 +3539,7 @@ QStringList HvLogW::MakeLoggedQSO(int l_row)
     ls << THvLogList->model.item(l_row, 12)->text();//.toUtf8(); //8 comment
     ls << "";												     //9 name
     ls << dt_start;                                              //10 qso_date on  time_on
-    ls << "";												     //11 operator_call
+    ls << OperatorFromComment(THvLogList->model.item(l_row, 12)->text());//11 operator_call //ik1hjs
     ls << s_my_call;//.toUtf8(); 								 //12 my_call
     ls << s_my_grid;//.toUtf8(); 								 //13 my_grid
     ls << THvLogList->model.item(l_row, 16)->text();			 //14 16-my tx exch contest exchange_sent
@@ -3679,6 +3682,9 @@ bool HvLogW::Insert(QStringList lst, bool save_changes,bool warning_msg,int show
         QString distt = CalcDistance(lst.at(5)); //qDebug()<<s_my_grid<<lst.at(5)<<distt;
         lst.replace(21,distt);
     }
+    //ik1hjs: the log has no operator column: put "Op: XXX" in the comment of a QSO logged live
+    if (save_changes && !s_operator.isEmpty() && lst.count()>12 && OperatorFromComment(lst.at(12)).isEmpty())
+        lst[12] = (lst.at(12).trimmed().isEmpty() ? QString("") : lst.at(12).trimmed()+" ")+"Op: "+s_operator;
     THvLogList->InsertItem_hv(lst);
 
     if (save_changes)
@@ -4756,4 +4762,11 @@ void HvLogW::ExportToCabr()
 
     QMessageBox::information(this, "MSHV", tr("Successfully Exported")+" "+QString("%1").arg(j)+" "+tr("QSOs In Cabrillo Format.")+"\n"+
                              tr("Full Path And File Name is")+":\n"+file_Path_Name, QMessageBox::Ok);
+}
+
+QString HvLogW::OperatorFromComment(QString c)//ik1hjs
+{
+    QRegExp rx("(?:^|\\s)Op:\\s*([A-Za-z0-9/]+)");
+    if (rx.indexIn(c) != -1) return rx.cap(1).toUpper();
+    return "";
 }

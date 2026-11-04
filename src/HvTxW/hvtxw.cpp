@@ -3502,6 +3502,7 @@ void HvTxW::SetMacros(QStringList list,int id_c0,QString cont_exch,QString trmN)
 
     MarkTextChanged(false);//bool false  norefresh b4 qso for my call and loc
     THvLogW->SetMyCallGridExchAllCont(list_macros.at(0),list_macros.at(1),cont_exch);
+    THvLogW->SetOperator(THvMakros->GetOperator());//ik1hjs
 
     //emit EmitLocStInfo(list_macros.at(0),list_macros.at(1),s_band);
 

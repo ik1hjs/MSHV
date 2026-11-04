@@ -222,6 +222,10 @@ HvMakros::HvMakros(QString AppP, bool f,QWidget *parent )
     le_loc = new HvInLe("locator", tr("GRID LOCATOR")+":",dsty);
     connect(le_loc, SIGNAL(EmitSndCheck(QString)), this, SLOT(Check(QString)));
     le_loc->setMaxLength(6);
+    //ik1hjs: OPERATOR (who is at the radio): written as OPERATOR in ADIF/UDP and as "Op: xxx" in the log comment
+    le_operator = new HvInLe("operator", tr("OPERATOR")+":",dsty);
+    le_operator->setMaxLength(25);
+    le_operator->setToolTip("Nominativo di chi opera: va nel campo OPERATOR dei QSO (ADIF, Wavelog) e nel commento del log come \"Op: ...\". Vuoto = nessun operatore");
 
     QPushButton*b_set_default_macr_a= new QPushButton(tr("SET DEFAULT MACROS"));
     b_set_default_macr_a->setFixedHeight(20);
@@ -245,6 +249,7 @@ HvMakros::HvMakros(QString AppP, bool f,QWidget *parent )
     H_call_loc->setSpacing(16);
     H_call_loc->addWidget(le_mycall);
     H_call_loc->addWidget(le_loc);
+    H_call_loc->addWidget(le_operator);//ik1hjs
 
     QVBoxLayout *V_l= new QVBoxLayout(this);
     V_l->setContentsMargins (4, 6, 4, 2);
@@ -475,6 +480,7 @@ void HvMakros::BExchangeChanged(QString)
 void HvMakros::SetFont(QFont f)
 {
     le_mycall->SetFont(f);
+    le_operator->SetFont(f);//ik1hjs
     le_loc->SetFont(f);
     le_exchfd->setFont(f);
     le_exchru->setFont(f);
@@ -676,13 +682,14 @@ bool HvMakros::isFindId(QString id,QString line,QString &res)
 void HvMakros::ReadSettings()
 {
     //QString macr_tx,macrc_tx;
-    const int c_st_id = 20;
+    const int c_st_id = 21;//ik1hjs +macr_operator
     //dopalva se tuk v kraia
     const QString st_id[c_st_id]=
         {
             "def_dist_unit","macr_reg","macr_rep_grd","macr_rep_contest","macr_my_call","macr_my_loc",
             "macr_tx1","macr_tx2","macr_tx3","macr_tx4","macr_tx5","macr_tx6","macr_tx7",
-            "mac_ctx1","mac_ctx2","mac_ctx3","mac_ctx4","mac_ctx5","mac_ctx6","mac_ctx7"
+            "mac_ctx1","mac_ctx2","mac_ctx3","mac_ctx4","mac_ctx5","mac_ctx6","mac_ctx7",
+            "macr_operator"//ik1hjs
         };
     QString st_res[c_st_id];
     for (int i = 0; i < c_st_id; ++i) st_res[i]="";
@@ -749,6 +756,7 @@ void HvMakros::ReadSettings()
         le_loc->SetText(st_res[5]);
     else
         Check("locator");
+    le_operator->SetText(st_res[20]);//ik1hjs
 
     if (!st_res[1].isEmpty())
     {
@@ -852,6 +860,7 @@ void HvMakros::SaveSettings()
         HvMakrIn *TempHvTxIn = (HvMakrIn*)V_lb->itemAt(i)->widget();
         out << "mac_ctx"+QString("%1").arg(i+1)+"=" << TempHvTxIn->line_txt->text() << "\n";
     }
+    out << "macr_operator=" << le_operator->getText() << "\n";//ik1hjs
 
     file.close();
 }

@@ -58,6 +58,7 @@ public:
     void SetMacros();
     void ModeChanget(int mode);
     void SetFont(QFont);
+    QString GetOperator(){return le_operator->getText().trimmed().toUpper();};//ik1hjs
 
 public slots:
     void SetMyCallUdp(QString);//ik1hjs UDP SetMyCall (51)
@@ -108,6 +109,7 @@ private:
 
     HvInLe *le_loc;
     HvInLe *le_mycall;
+    HvInLe *le_operator;//ik1hjs
     QVBoxLayout *V_la;
     QVBoxLayout *V_lb;
     int count_tx_widget;
