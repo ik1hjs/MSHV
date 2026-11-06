@@ -1707,6 +1707,7 @@ HvLogW::HvLogW(QString inst,QString app_path, bool indsty,int x,int y,QWidget *w
     AppPath = app_path;
     s_my_call = "NONE";
     s_operator = "";//ik1hjs
+    s_home_call = "";//ik1hjs
     s_my_grid = "NONE";
     s_my_fd_exch = "NONE";
     s_my_ru_exch = "NONE";
@@ -3315,7 +3316,7 @@ QString HvLogW::MakeAdifString(int l_row)
     QString s;
     QString out;
 
-    s = s_my_call;//STATION_CALLSIGN
+    s = StationCallForRow(l_row);//STATION_CALLSIGN //ik1hjs: the call used for this QSO, not the current one
     out.append("<STATION_CALLSIGN:"+QString("%1").arg(s.count())+">"+s);
     s = OperatorFromComment(THvLogList->model.item(l_row, 12)->text());//ik1hjs OPERATOR from "Op: XXX"
     if (!s.isEmpty()) out.append("<OPERATOR:"+QString("%1").arg(s.count())+">"+s);
@@ -3540,7 +3541,7 @@ QStringList HvLogW::MakeLoggedQSO(int l_row)
     ls << "";												     //9 name
     ls << dt_start;                                              //10 qso_date on  time_on
     ls << OperatorFromComment(THvLogList->model.item(l_row, 12)->text());//11 operator_call //ik1hjs
-    ls << s_my_call;//.toUtf8(); 								 //12 my_call
+    ls << StationCallForRow(l_row);//ik1hjs					 //12 my_call
     ls << s_my_grid;//.toUtf8(); 								 //13 my_grid
     ls << THvLogList->model.item(l_row, 16)->text();			 //14 16-my tx exch contest exchange_sent
     ls << THvLogList->model.item(l_row, 17)->text();			 //15 17-my rx exch contest exchange_rcvd
@@ -3685,6 +3686,10 @@ bool HvLogW::Insert(QStringList lst, bool save_changes,bool warning_msg,int show
     //ik1hjs: the log has no operator column: put "Op: XXX" in the comment of a QSO logged live
     if (save_changes && !s_operator.isEmpty() && lst.count()>12 && OperatorFromComment(lst.at(12)).isEmpty())
         lst[12] = (lst.at(12).trimmed().isEmpty() ? QString("") : lst.at(12).trimmed()+" ")+"Op: "+s_operator;
+    //ik1hjs: QSO made with a MY CALL other than MAIN CALL: "St: <MY CALL>" in the comment
+    if (save_changes && !s_home_call.isEmpty() && lst.count()>12 && StationFromComment(lst.at(12)).isEmpty() &&
+            !s_my_call.isEmpty() && s_my_call!="NONE" && s_my_call.toUpper()!=s_home_call)
+        lst[12] = (lst.at(12).trimmed().isEmpty() ? QString("") : lst.at(12).trimmed()+" ")+"St: "+s_my_call.toUpper();
     THvLogList->InsertItem_hv(lst);
 
     if (save_changes)
@@ -4769,4 +4774,17 @@ QString HvLogW::OperatorFromComment(QString c)//ik1hjs
     QRegExp rx("(?:^|\\s)Op:\\s*([A-Za-z0-9/]+)");
     if (rx.indexIn(c) != -1) return rx.cap(1).toUpper();
     return "";
+}
+QString HvLogW::StationFromComment(QString c)//ik1hjs
+{
+    QRegExp rx("(?:^|\\s)St:\\s*([A-Za-z0-9/]+)");
+    if (rx.indexIn(c) != -1) return rx.cap(1).toUpper();
+    return "";
+}
+QString HvLogW::StationCallForRow(int l_row)//ik1hjs "St: XXX" in the comment, else MAIN CALL, else current MY CALL
+{
+    QString s = StationFromComment(THvLogList->model.item(l_row, 12)->text());
+    if (s.isEmpty()) s = s_home_call;
+    if (s.isEmpty()) s = s_my_call;
+    return s;
 }

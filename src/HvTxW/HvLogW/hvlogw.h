@@ -201,6 +201,9 @@ public:
    	bool Insert(QStringList,bool,bool,int,bool,bool);
    	void SetMyCallGridExchAllCont(QString,QString,QString);	
     void SetOperator(QString s){s_operator=s;};//ik1hjs
+    void SetHomeCall(QString s){s_home_call=s;};//ik1hjs
+    static QString StationFromComment(QString c);//ik1hjs "St: XXX" in the comment
+    QString StationCallForRow(int l_row);//ik1hjs
     static QString OperatorFromComment(QString c);//ik1hjs "Op: XXX" in the comment
    	void IsCallDupeInLog(QString,QString,QString,int,bool &);
    	void SetFont(QFont f);
@@ -321,6 +324,7 @@ private:
     HvEditW *AddManQsoW;
     QString s_my_call;
     QString s_operator;//ik1hjs
+    QString s_home_call;//ik1hjs
     QString s_my_grid;
     QString s_my_fd_exch;
     QString s_my_ru_exch;

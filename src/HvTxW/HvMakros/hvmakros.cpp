@@ -225,6 +225,10 @@ HvMakros::HvMakros(QString AppP, bool f,QWidget *parent )
     //ik1hjs: OPERATOR (who is at the radio): written as OPERATOR in ADIF/UDP and as "Op: xxx" in the log comment
     le_operator = new HvInLe("operator", tr("OPERATOR")+":",dsty);
     le_operator->setMaxLength(25);
+    //ik1hjs: MAIN CALL = usual station call; a QSO logged with another MY CALL gets "St: <MY CALL>" in the log comment
+    le_home_call = new HvInLe("homecall", tr("MAIN CALL")+":",dsty);
+    le_home_call->setMaxLength(25);
+    le_home_call->setToolTip("Il tuo nominativo principale. Se registri un QSO con un MY CALL diverso, nel commento del log va \"St: <MY CALL>\" e l'esportazione ADIF usa quel nominativo. Vuoto = disattivato");
     le_operator->setToolTip("Nominativo di chi opera: va nel campo OPERATOR dei QSO (ADIF, Wavelog) e nel commento del log come \"Op: ...\". Vuoto = nessun operatore");
 
     QPushButton*b_set_default_macr_a= new QPushButton(tr("SET DEFAULT MACROS"));
@@ -249,7 +253,11 @@ HvMakros::HvMakros(QString AppP, bool f,QWidget *parent )
     H_call_loc->setSpacing(16);
     H_call_loc->addWidget(le_mycall);
     H_call_loc->addWidget(le_loc);
-    H_call_loc->addWidget(le_operator);//ik1hjs
+    QHBoxLayout *H_op_home = new QHBoxLayout();//ik1hjs
+    H_op_home->setContentsMargins(1,1,1,1);
+    H_op_home->setSpacing(16);
+    H_op_home->addWidget(le_operator);
+    H_op_home->addWidget(le_home_call);
 
     QVBoxLayout *V_l= new QVBoxLayout(this);
     V_l->setContentsMargins (4, 6, 4, 2);
@@ -277,6 +285,7 @@ HvMakros::HvMakros(QString AppP, bool f,QWidget *parent )
     //V_l->addLayout(H_h); //V_l->setAlignment(H_h,Qt::AlignBottom);
     //V_l->addLayout(H_hloc); //V_l->setAlignment(H_hloc,Qt::AlignBottom);
     V_l->addLayout(H_call_loc);
+    V_l->addLayout(H_op_home);//ik1hjs
     //V_l->setAlignment(Qt::AlignRight);
 
     //count_widg_plus = 0;//dopalnite widgeti broq ina4e garmi
@@ -481,6 +490,7 @@ void HvMakros::SetFont(QFont f)
 {
     le_mycall->SetFont(f);
     le_operator->SetFont(f);//ik1hjs
+    le_home_call->SetFont(f);//ik1hjs
     le_loc->SetFont(f);
     le_exchfd->setFont(f);
     le_exchru->setFont(f);
@@ -682,14 +692,14 @@ bool HvMakros::isFindId(QString id,QString line,QString &res)
 void HvMakros::ReadSettings()
 {
     //QString macr_tx,macrc_tx;
-    const int c_st_id = 21;//ik1hjs +macr_operator
+    const int c_st_id = 22;//ik1hjs +macr_operator +macr_home_call
     //dopalva se tuk v kraia
     const QString st_id[c_st_id]=
         {
             "def_dist_unit","macr_reg","macr_rep_grd","macr_rep_contest","macr_my_call","macr_my_loc",
             "macr_tx1","macr_tx2","macr_tx3","macr_tx4","macr_tx5","macr_tx6","macr_tx7",
             "mac_ctx1","mac_ctx2","mac_ctx3","mac_ctx4","mac_ctx5","mac_ctx6","mac_ctx7",
-            "macr_operator"//ik1hjs
+            "macr_operator","macr_home_call"//ik1hjs
         };
     QString st_res[c_st_id];
     for (int i = 0; i < c_st_id; ++i) st_res[i]="";
@@ -757,6 +767,7 @@ void HvMakros::ReadSettings()
     else
         Check("locator");
     le_operator->SetText(st_res[20]);//ik1hjs
+    le_home_call->SetText(st_res[21]);//ik1hjs
 
     if (!st_res[1].isEmpty())
     {
@@ -861,6 +872,7 @@ void HvMakros::SaveSettings()
         out << "mac_ctx"+QString("%1").arg(i+1)+"=" << TempHvTxIn->line_txt->text() << "\n";
     }
     out << "macr_operator=" << le_operator->getText() << "\n";//ik1hjs
+    out << "macr_home_call=" << le_home_call->getText() << "\n";//ik1hjs
 
     file.close();
 }
