@@ -204,6 +204,7 @@ public:
     void SetHomeCall(QString s){s_home_call=s;};//ik1hjs
     static QString StationFromComment(QString c);//ik1hjs "St: XXX" in the comment
     QString StationCallForRow(int l_row);//ik1hjs
+    QString OperatorForRow(int l_row);//ik1hjs
     static QString OperatorFromComment(QString c);//ik1hjs "Op: XXX" in the comment
    	void IsCallDupeInLog(QString,QString,QString,int,bool &);
    	void SetFont(QFont f);

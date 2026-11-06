@@ -3318,7 +3318,7 @@ QString HvLogW::MakeAdifString(int l_row)
 
     s = StationCallForRow(l_row);//STATION_CALLSIGN //ik1hjs: the call used for this QSO, not the current one
     out.append("<STATION_CALLSIGN:"+QString("%1").arg(s.count())+">"+s);
-    s = OperatorFromComment(THvLogList->model.item(l_row, 12)->text());//ik1hjs OPERATOR from "Op: XXX"
+    s = OperatorForRow(l_row);//ik1hjs OPERATOR from "Op: XXX", else "St: XXX"
     if (!s.isEmpty()) out.append("<OPERATOR:"+QString("%1").arg(s.count())+">"+s);
     s = s_my_grid;//MY_GRIDSQUARE
     out.append("<MY_GRIDSQUARE:"+QString("%1").arg(s.count())+">"+s);
@@ -3540,7 +3540,7 @@ QStringList HvLogW::MakeLoggedQSO(int l_row)
     ls << THvLogList->model.item(l_row, 12)->text();//.toUtf8(); //8 comment
     ls << "";												     //9 name
     ls << dt_start;                                              //10 qso_date on  time_on
-    ls << OperatorFromComment(THvLogList->model.item(l_row, 12)->text());//11 operator_call //ik1hjs
+    ls << OperatorForRow(l_row);//11 operator_call //ik1hjs
     ls << StationCallForRow(l_row);//ik1hjs					 //12 my_call
     ls << s_my_grid;//.toUtf8(); 								 //13 my_grid
     ls << THvLogList->model.item(l_row, 16)->text();			 //14 16-my tx exch contest exchange_sent
@@ -4786,5 +4786,12 @@ QString HvLogW::StationCallForRow(int l_row)//ik1hjs "St: XXX" in the comment, e
     QString s = StationFromComment(THvLogList->model.item(l_row, 12)->text());
     if (s.isEmpty()) s = s_home_call;
     if (s.isEmpty()) s = s_my_call;
+    return s;
+}
+QString HvLogW::OperatorForRow(int l_row)//ik1hjs "Op: XXX", else "St: XXX" (operating with own call), else empty
+{
+    QString c = THvLogList->model.item(l_row, 12)->text();
+    QString s = OperatorFromComment(c);
+    if (s.isEmpty()) s = StationFromComment(c);
     return s;
 }
