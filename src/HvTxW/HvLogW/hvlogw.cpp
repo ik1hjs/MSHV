@@ -3686,10 +3686,10 @@ bool HvLogW::Insert(QStringList lst, bool save_changes,bool warning_msg,int show
     //ik1hjs: the log has no operator column: put "Op: XXX" in the comment of a QSO logged live
     if (save_changes && !s_operator.isEmpty() && lst.count()>12 && OperatorFromComment(lst.at(12)).isEmpty())
         lst[12] = (lst.at(12).trimmed().isEmpty() ? QString("") : lst.at(12).trimmed()+" ")+"Op: "+s_operator;
-    //ik1hjs: QSO made with a MY CALL other than MAIN CALL: "St: <MY CALL>" in the comment
+    //ik1hjs: QSO made with a MY CALL other than MAIN CALL: that call as last word of the comment (e.g. "IW1PUR")
     if (save_changes && !s_home_call.isEmpty() && lst.count()>12 && StationFromComment(lst.at(12)).isEmpty() &&
             !s_my_call.isEmpty() && s_my_call!="NONE" && s_my_call.toUpper()!=s_home_call)
-        lst[12] = (lst.at(12).trimmed().isEmpty() ? QString("") : lst.at(12).trimmed()+" ")+"St: "+s_my_call.toUpper();
+        lst[12] = (lst.at(12).trimmed().isEmpty() ? QString("") : lst.at(12).trimmed()+" ")+s_my_call.toUpper();
     THvLogList->InsertItem_hv(lst);
 
     if (save_changes)
@@ -4775,10 +4775,14 @@ QString HvLogW::OperatorFromComment(QString c)//ik1hjs
     if (rx.indexIn(c) != -1) return rx.cap(1).toUpper();
     return "";
 }
-QString HvLogW::StationFromComment(QString c)//ik1hjs
+QString HvLogW::StationFromComment(QString c)//ik1hjs station call = last word of the comment if it looks like a callsign (not after "Op:")
 {
-    QRegExp rx("(?:^|\\s)St:\\s*([A-Za-z0-9/]+)");
-    if (rx.indexIn(c) != -1) return rx.cap(1).toUpper();
+    QStringList w = c.trimmed().split(QRegExp("\\s+"),QString::SkipEmptyParts);
+    if (w.isEmpty()) return "";
+    QString t = w.last().toUpper();
+    if (w.count()>=2 && w.at(w.count()-2).compare("Op:",Qt::CaseInsensitive)==0) return "";//that is the operator
+    QRegExp rx("^([A-Z0-9]{1,4}/)?[A-Z0-9]{0,3}[0-9][A-Z]{1,4}(/[A-Z0-9]{1,4})?$");
+    if (rx.exactMatch(t)) return t;
     return "";
 }
 QString HvLogW::StationCallForRow(int l_row)//ik1hjs "St: XXX" in the comment, else MAIN CALL, else current MY CALL
