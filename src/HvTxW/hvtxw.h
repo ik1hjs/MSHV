@@ -389,6 +389,7 @@ signals:
     void EmitMessageS(QString msg,bool imidiatly,bool iftximid);
     void EmitAuto();
     void EmitUdpMultiAnswer(int);//ik1hjs UDP SetMultiAnswer (53)
+    void EmitToggleMAStdDx();//ik1hjs MA button
     void EmitFileNameChenged();
     void EmitDfSdbChanged(int,int);
     void EmitDfChanged(int,int);
@@ -495,6 +496,7 @@ private:
 	void SetMarkTextAll();
 	QString s_last_bccall_tolog_excp;
 	HvButtonLeftRightClick *b_add_to_log;//QPushButton *b_add_to_log;	
+    QPushButton *b_ma_toggle;//ik1hjs
     void AddToLog_p(bool direct_save_to_log); 
     bool s_start_qso_from_tx2;
     //bool DialogIsCallDupeInLog(QString hisCall_inmsg);

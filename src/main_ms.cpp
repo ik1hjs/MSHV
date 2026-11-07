@@ -1380,6 +1380,7 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     connect(THvTxW, SIGNAL(EmitMessageS(QString,bool,bool)), this, SLOT(TxMessageS(QString,bool,bool)));
     connect(THvTxW, SIGNAL(EmitAuto()), this, SLOT(SetAuto()));
     connect(THvTxW, SIGNAL(EmitUdpMultiAnswer(int)), this, SLOT(SetUdpMultiAnswer(int)));//ik1hjs
+    connect(THvTxW, SIGNAL(EmitToggleMAStdDx()), this, SLOT(ToggleMAStdDx()));//ik1hjs MA button
 
     //connect(THvMakros, SIGNAL(EmitRptRsq(bool)), THvTxW, SLOT(SetRptRsq(bool)));
     connect(THvTxW, SIGNAL(EmitMacros(int,QString)),this,SLOT(SetMacros(int,QString)));
@@ -1966,6 +1967,21 @@ void Main_Ms::SetMultiAnswerMod(bool f)
     THvTxW->SetMultiAnswerMod(Multi_answer_mod->isChecked(),Multi_answer_mod_std->isChecked());
     RefreshWindowTitle();
     RefreshCbCfm73();
+}
+void Main_Ms::ToggleMAStdDx()//ik1hjs MA Standard <-> MA DXpedition (MA button under ADD TO LOG, Ctrl+Q); from OFF -> Standard
+{
+    if (!(s_mode==11 || s_mode==13 || s_mode==18 || allq65)) return;//only FT8/FT4/FT2/Q65
+    if (g_block_mam)
+    {
+        QMessageBox::warning(this, "MSHV", tr("Multi Answering Auto Seq Protocol\n"
+                             "can be used only in Standard Activity Type\n"
+                             "Go to Options Macros and correct."), QMessageBox::Ok);
+        return;
+    }
+    if (Multi_answer_mod_std->isChecked())
+        Multi_answer_mod->setChecked(true);//SetMultiAnswerMod() unchecks Standard
+    else
+        Multi_answer_mod_std->setChecked(true);//SetMultiAnswerModStd() unchecks DXpedition
 }
 void Main_Ms::SetUdpMultiAnswer(int m)//ik1hjs UDP SetMultiAnswer (53): like the Other Options menu
 {   // ignored where the menu is disabled (modes/contests without Multi Answering)
@@ -5319,12 +5335,7 @@ void Main_Ms::keyPressEvent(QKeyEvent* event)
                     Multi_answer_mod->setChecked(true);
             }
             if (event->key()==Qt::Key_Q)//ik1hjs: Ctrl+Q toggles MA Standard <-> MA DXpedition
-            {
-                if (Multi_answer_mod_std->isChecked())
-                    Multi_answer_mod->setChecked(true);//SetMultiAnswerMod() unchecks Standard
-                else
-                    Multi_answer_mod_std->setChecked(true);//SetMultiAnswerModStd() unchecks DXpedition
-            }
+                ToggleMAStdDx();
         }
         if (event->modifiers()==Qt::ControlModifier && (s_mode==11 || s_mode==13 || s_mode==18 || allq65) && g_block_mam)
         {

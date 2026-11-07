@@ -65,6 +65,8 @@ class HvLogList : public QTreeView
 {
     Q_OBJECT
 public:
+    static QString OperatorText(QString comment);//ik1hjs
+
     HvLogList(bool,QWidget *parent = 0);
     virtual ~HvLogList();
 

@@ -109,7 +109,8 @@ HvLogList::HvLogList(bool indsty,QWidget *parent)
     //<<"Band"<<"Freq kHz"<<"Prop"<<"Comment";
     list_A <<tr("Date")<<tr("Start")<<"Date End"<<tr("End")<<tr("Callsign")<<tr("Locator")<<"TXRpt"<<"RXRpt"<<tr("Mode")
     <<tr("Band")<<"Freq kHz"<<tr("Prop")<<tr("Comment")<<"secSta"<<"TXSn"<<"RXSn"<<"TXExch"<<"RXExch"<<"Cid"
-    <<"Cmt"<<"secDnd"<<tr("Distance")<<tr("Satellite")<<tr("Sat Mode")<<"RX Freq MHz";
+    <<"Cmt"<<"secDnd"<<tr("Distance")<<tr("Satellite")<<tr("Sat Mode")<<"RX Freq MHz"
+    <<tr("Operator");//ik1hjs 25: shown only, taken from the comment ("Op: XXX" or the call at the end), not saved
     model.setHorizontalHeaderLabels(list_A);
 
     THvHeader->setSectionResizeMode(QHeaderView::Fixed);//qt5
@@ -158,6 +159,8 @@ HvLogList::HvLogList(bool indsty,QWidget *parent)
     THvHeader->moveSection(22,14);
     THvHeader->moveSection(23,15);
     THvHeader->moveSection(24,16);  //qDebug()<<model.columnCount();
+    THvHeader->resizeSection(25, 80); //ik1hjs Operator
+    THvHeader->moveSection(THvHeader->visualIndex(25),THvHeader->visualIndex(12)+1);//ik1hjs right after Comment
 
     //THvHeader->setSectionResizeMode(4, QHeaderView::ResizeToContents);//no work bug in qt5.7
     /*THvHeader->setSectionResizeMode(0, QHeaderView::Stretch);//1.81 for font
@@ -289,6 +292,13 @@ void HvLogList::InsertItem_hv(QStringList list)
             qlsi.append(item);
             collumn++;
         }
+        while (qlsi.count() < model.columnCount())//ik1hjs Operator column (and any missing one)
+        {
+            QStandardItem *item = new QStandardItem("");
+            item->setEditable(false);
+            qlsi.append(item);
+        }
+        if (qlsi.count() > 25 && list.count() > 12) qlsi[25]->setText(OperatorText(list.at(12)));//ik1hjs
         //model.insertRow(model.rowCount(), qlsi);
         model.appendRow(qlsi);
         //this->setCurrentIndex(model.index(model.rowCount()-1,0));
@@ -324,7 +334,18 @@ void HvLogList::SetItem_hv(QStringList list,int index_edit)
         if (isHidenCol) THvHeader->hideSection(j);
         //column_numb++;
     }
+    if (model.columnCount() > 25 && list.count() > 12)//ik1hjs refresh Operator after an edit of the comment
+    {
+        QStandardItem *op = model.item(index_edit,25);
+        if (op) op->setText(OperatorText(list.at(12)));
+    }
     setCurrentIndex(model.index(index_edit, 1, QModelIndex()));// ina4e ne refreshva 1 row
+}
+QString HvLogList::OperatorText(QString comment)//ik1hjs "Op: XXX", else the call at the end of the comment
+{
+    QString s = HvLogW::OperatorFromComment(comment);
+    if (s.isEmpty()) s = HvLogW::StationFromComment(comment);
+    return s;
 }
 void HvLogList::Clear_List()
 {

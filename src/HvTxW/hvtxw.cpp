@@ -732,6 +732,12 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     b_add_to_log->setToolTip(tr("Left Click, ADD TO LOG")+"\n"+tr("Right Click, Logging Settings"));
     connect(b_add_to_log,SIGNAL(lclicked()),this,SLOT(AddToLogButton()));
     connect(b_add_to_log,SIGNAL(rclicked()),this,SLOT(SetAutoLogInfo()));
+    //ik1hjs: big button under ADD TO LOG: Multi Answering Standard <-> DXpedition (like Ctrl+Q)
+    b_ma_toggle = new QPushButton("MA OFF");
+    b_ma_toggle->setFixedHeight(21);
+    b_ma_toggle->setToolTip("Multi Answering: passa da Standard a DXpedition e viceversa (come Ctrl+Q)");
+    b_ma_toggle->setStyleSheet("QPushButton{font-weight:bold;}");
+    connect(b_ma_toggle,SIGNAL(clicked(bool)),this,SIGNAL(EmitToggleMAStdDx()));
     connect(THvLogW,SIGNAL(EmitCBEnableAliChanged(bool)),this,SLOT(CBEnableAliChanged(bool)));
 
     le_his_call = new HvInLe("call", tr("TO RADIO")+":",dsty);
@@ -978,6 +984,8 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     QHBoxLayout *H_locdb = new QHBoxLayout();
     H_locdb->setContentsMargins(0, 1, 0, 1);
     H_locdb->setSpacing(2);
+    b_ma_toggle->setMinimumWidth(b_add_to_log->sizeHint().width());//ik1hjs same width as ADD TO LOG, right under it
+    H_locdb->addWidget(b_ma_toggle);//ik1hjs
     H_locdb->addWidget(LeHisLoc);
     H_locdb->addWidget(l_loc_from_db);
     H_locdb->addWidget(pb_checkdb);
@@ -1280,6 +1288,7 @@ void HvTxW::SetFont(QFont f)
     le_qrg->SetFont(f);
     THvMakros->SetFont(f);
     b_add_to_log->setFont(f);//2.75
+    b_ma_toggle->setFont(f);//ik1hjs
     cb_msh->setFont(f);//2.76
     cb_msf->setFont(f);
     //flex_panel->setFont(f);// ???
@@ -3864,6 +3873,21 @@ void HvTxW::SetMultiAnswerMod(bool fmadx, bool fmastd)
     else f_multi_answer_mod = false;
     f_multi_answer_mod_std = fmastd;//for recorgnize tp
     MultiAnswerMod->SetMAStd(fmastd);
+    if (fmadx)//ik1hjs state on the MA button
+    {
+        b_ma_toggle->setText("MA DXPEDITION");
+        b_ma_toggle->setStyleSheet("QPushButton{font-weight:bold;background-color:rgb(255,170,60);color:black;}");
+    }
+    else if (fmastd)
+    {
+        b_ma_toggle->setText("MA STANDARD");
+        b_ma_toggle->setStyleSheet("QPushButton{font-weight:bold;background-color:rgb(130,210,130);color:black;}");
+    }
+    else
+    {
+        b_ma_toggle->setText("MA OFF");
+        b_ma_toggle->setStyleSheet("QPushButton{font-weight:bold;}");
+    }
     RefreshBackupDB();
     RefreshMultiAnswerModAndASeq();
     
