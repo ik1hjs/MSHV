@@ -113,6 +113,25 @@ void _ReadSSAndSet_()
     }
 }
 //// end Translation ////
+//ik1hjs rotator box helpers
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QIntValidator>
+class RotLineEdit : public QLineEdit
+{
+public:
+    RotLineEdit(QWidget *p = 0) : QLineEdit(p) {}
+protected:
+    void keyPressEvent(QKeyEvent *e)
+    {
+        QLineEdit::keyPressEvent(e);
+        if (e->key()==Qt::Key_Return || e->key()==Qt::Key_Enter) e->accept();//Enter stays here
+    }
+};
+
 Main_Ms::Main_Ms(QString inst0,QWidget * parent)
         : QWidget(parent)
 {
@@ -1264,6 +1283,45 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     H_l->setContentsMargins(0,0,0,0);
     H_l->addWidget(Min_Menu);
     H_l->setAlignment(Min_Menu,Qt::AlignLeft);
+    {//ik1hjs rotator box (same rotator and logic as DX Alert: GET/POST http://127.0.0.1:8073/api/rotor)
+        QWidget *w_rot = new QWidget();
+        QHBoxLayout *H_rot = new QHBoxLayout(w_rot);
+        H_rot->setContentsMargins(6,0,6,0);
+        H_rot->setSpacing(3);
+        QLabel *l_rot = new QLabel("Rotore:");
+        l_rot_az = new QLabel("---\u00b0");
+        l_rot_az->setMinimumWidth(80);
+        l_rot_az->setStyleSheet("QLabel{font-weight:bold;}");
+        l_rot_az->setToolTip("Posizione del rotore letta da DX Alert (ARSVCOM)");
+        le_rot = new RotLineEdit();
+        le_rot->setFixedWidth(42);
+        le_rot->setMaxLength(3);
+        le_rot->setValidator(new QIntValidator(0,360,le_rot));
+        le_rot->setPlaceholderText("gradi");
+        le_rot->setToolTip("Gradi a cui girare il rotore (0-360), poi Invio o VAI");
+        QPushButton *pb_rot_go = new QPushButton("VAI");
+        pb_rot_go->setFixedHeight(20);
+        pb_rot_go->setMaximumWidth(40);
+        QPushButton *pb_rot_stop = new QPushButton("STOP");
+        pb_rot_stop->setFixedHeight(20);
+        pb_rot_stop->setMaximumWidth(48);
+        pb_rot_stop->setStyleSheet("QPushButton{font-weight:bold;color:rgb(200,0,0);}");
+        H_rot->addWidget(l_rot);
+        H_rot->addWidget(l_rot_az);
+        H_rot->addWidget(le_rot);
+        H_rot->addWidget(pb_rot_go);
+        H_rot->addWidget(pb_rot_stop);
+        connect(le_rot, SIGNAL(returnPressed()), this, SLOT(RotGo()));
+        connect(pb_rot_go, SIGNAL(clicked(bool)), this, SLOT(RotGo()));
+        connect(pb_rot_stop, SIGNAL(clicked(bool)), this, SLOT(RotStop()));
+        nam_rot = new QNetworkAccessManager(this);
+        rot_busy = false;
+        QTimer *t_rot = new QTimer(this);
+        connect(t_rot, SIGNAL(timeout()), this, SLOT(RotPoll()));
+        t_rot->start(2000);
+        H_l->addWidget(w_rot);
+        H_l->setAlignment(w_rot,Qt::AlignLeft);
+    }
     //H_l->addWidget(lsuperfox);
     //H_l->setAlignment(lsuperfox,Qt::AlignCenter);
     
@@ -5385,4 +5443,73 @@ void Main_Ms::StartQrgAdvisor()
     }
     if (!QProcess::startDetached(exe,QStringList(),fi.absolutePath()))
         QMessageBox::warning(this,"MSHV","Impossibile avviare QRG Advisor");
+}
+
+//ik1hjs rotator box: DX Alert does the work (ARSVCOM position, Win-Test SETAZIMUTH, STOP through ShackHJS)
+static const char *ROT_URL = "http://127.0.0.1:8073/api/rotor";
+void Main_Ms::RotShow(QByteArray data,bool after_cmd)
+{
+    QJsonObject o = QJsonDocument::fromJson(data).object();
+    if (o.isEmpty())
+    {
+        l_rot_az->setText("---\u00b0");
+        l_rot_az->setStyleSheet("QLabel{font-weight:bold;color:gray;}");
+        l_rot_az->setToolTip("DX Alert non risponde (porta 8073)");
+        return;
+    }
+    QString az = o.value("az").isNull() ? QString("---") : QString::number(o.value("az").toInt());
+    QString txt = az+"\u00b0";
+    QString col = "";
+    QString tip = "Posizione del rotore letta da DX Alert (ARSVCOM)";
+    QJsonObject j = o.value("job").toObject();
+    if (!j.isEmpty() && j.value("stage").toString()=="moving")
+    {
+        txt += " \u2192 "+QString::number(j.value("target").toInt())+"\u00b0";
+        col = "color:rgb(220,120,0);";
+    }
+    if (!o.value("ok").toBool())
+    {
+        col = "color:rgb(200,0,0);";
+        tip = o.value("err").toString();
+    }
+    else if (after_cmd && !j.isEmpty() && j.value("stage").toString()=="error") tip = j.value("msg").toString();
+    if (after_cmd && !o.value("err").toString().isEmpty()) tip = o.value("err").toString();
+    l_rot_az->setText(txt);
+    l_rot_az->setStyleSheet("QLabel{font-weight:bold;"+col+"}");
+    l_rot_az->setToolTip(tip);
+}
+void Main_Ms::RotPoll()
+{
+    if (rot_busy) return;
+    rot_busy = true;
+    QNetworkReply *r = nam_rot->get(QNetworkRequest(QUrl(ROT_URL)));
+    connect(r, &QNetworkReply::finished, this, [this,r]()
+    {
+        rot_busy = false;
+        RotShow(r->error()==QNetworkReply::NoError ? r->readAll() : QByteArray(),false);
+        r->deleteLater();
+    });
+}
+void Main_Ms::RotPost(QByteArray body)
+{
+    QNetworkRequest q{QUrl(ROT_URL)};
+    q.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    QNetworkReply *r = nam_rot->post(q,body);
+    connect(r, &QNetworkReply::finished, this, [this,r]()
+    {
+        RotShow(r->error()==QNetworkReply::NoError ? r->readAll() : QByteArray(),true);
+        r->deleteLater();
+    });
+}
+void Main_Ms::RotGo()
+{
+    QString s = le_rot->text().trimmed();
+    if (s.isEmpty()) return;
+    int az = s.toInt();
+    if (az<0 || az>360) return;
+    RotPost(QString("{\"az\":%1,\"label\":\"MSHV\"}").arg(az).toUtf8());
+}
+void Main_Ms::RotStop()
+{
+    RotPost("{\"stop\":true}");
 }

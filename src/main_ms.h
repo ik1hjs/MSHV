@@ -60,6 +60,9 @@ public:
         
 private slots:
     void StartQrgAdvisor();//ik1hjs
+    void RotPoll();//ik1hjs rotator box (through DX Alert)
+    void RotGo();//ik1hjs
+    void RotStop();//ik1hjs
     // Native Flex VITA-49: live forward power / SWR straight off the radio.
     void UpdateFlexMeter(bool,bool,double,double);
     
@@ -150,6 +153,13 @@ private slots:
     void SetOffsetDt(int);//2.76.5
     
 private:
+    //ik1hjs rotator box next to the QRG Advisor menu item: position, degrees to go, GO and STOP, through DX Alert /api/rotor
+    class QNetworkAccessManager *nam_rot;
+    QLabel *l_rot_az;
+    QLineEdit *le_rot;
+    bool rot_busy;
+    void RotPost(QByteArray body);
+    void RotShow(QByteArray json,bool after_cmd);
 	int s_offset_dt;//2.76.5
     QString InstName;
 	QString _stcq_;
