@@ -995,13 +995,12 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     H_locdb->setAlignment(Qt::AlignCenter);
     //H_locdb->setAlignment(pb_adddb,Qt::AlignLeft);
 
-    //ik1hjs anonymous button (no text, black / red when on CABLE) under ADD: input CABLE + DT 1.0 <-> previous input + DT 0
+    //ik1hjs anonymous button (no text, normal look / red when on CABLE) under ADD: input CABLE + DT 1.0 <-> previous input + DT 0
     pb_anon = new QPushButton("");
     pb_anon->setCheckable(true);
     pb_anon->setFixedSize(56,40);
     pb_anon->setFocusPolicy(Qt::NoFocus);
-    pb_anon->setStyleSheet("QPushButton{background-color:black;border:1px solid rgb(90,90,90);}"
-                           "QPushButton:checked{background-color:rgb(220,0,0);border:1px solid rgb(140,0,0);}");//ik1hjs black, red on CABLE
+    //ik1hjs normal button look like the others (no style sheet), red only while on CABLE (see AnonToggled)
     connect(pb_anon,SIGNAL(toggled(bool)),this,SLOT(AnonToggled(bool)));
 
     QHBoxLayout *H_lc = new QHBoxLayout();
@@ -5734,6 +5733,7 @@ void HvTxW::ExternalFindLocFromDB(QString call)
 
 void HvTxW::AnonToggled(bool f)//ik1hjs anonymous button
 {
+    pb_anon->setStyleSheet(f ? "QPushButton{background-color:rgb(220,0,0);}" : "");//red on CABLE, otherwise normal
     emit EmitAnonToggled(f);//Main_Ms switches the input device; if it fails it calls AnonFailed()
     sb_dt->SetDtSec(f ? 1.0 : 0.0);
 }
@@ -5742,5 +5742,6 @@ void HvTxW::AnonFailed()//ik1hjs no CABLE device: back to normal
     pb_anon->blockSignals(true);
     pb_anon->setChecked(false);
     pb_anon->blockSignals(false);
+    pb_anon->setStyleSheet("");
     sb_dt->SetDtSec(0.0);
 }
