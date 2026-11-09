@@ -1439,6 +1439,7 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
     connect(THvTxW, SIGNAL(EmitAuto()), this, SLOT(SetAuto()));
     connect(THvTxW, SIGNAL(EmitUdpMultiAnswer(int)), this, SLOT(SetUdpMultiAnswer(int)));//ik1hjs
     connect(THvTxW, SIGNAL(EmitToggleMAStdDx()), this, SLOT(ToggleMAStdDx()));//ik1hjs MA button
+    connect(THvTxW, SIGNAL(EmitAnonToggled(bool)), this, SLOT(AnonToggled(bool)));//ik1hjs anonymous button
 
     //connect(THvMakros, SIGNAL(EmitRptRsq(bool)), THvTxW, SLOT(SetRptRsq(bool)));
     connect(THvTxW, SIGNAL(EmitMacros(int,QString)),this,SLOT(SetMacros(int,QString)));
@@ -5512,4 +5513,13 @@ void Main_Ms::RotGo()
 void Main_Ms::RotStop()
 {
     RotPost("{\"stop\":true}");
+}
+
+void Main_Ms::AnonToggled(bool f)//ik1hjs anonymous button: sound input CABLE <-> previous (DT is set by HvTxW)
+{
+    if (!TSettingsMs->SwitchInDevCable(f))
+    {
+        THvTxW->AnonFailed();
+        QMessageBox::warning(this,"MSHV",f ? QString("Ingresso audio \"CABLE Output\" non trovato") : QString("Ingresso audio precedente non trovato"));
+    }
 }

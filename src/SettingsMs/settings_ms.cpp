@@ -921,4 +921,24 @@ void SettingsMs::InDeviceChanged(QString)
     }
 }
 
-
+bool SettingsMs::SwitchInDevCable(bool cable)//ik1hjs input device -> "CABLE Output ..." (VB-Audio) and back to the previous one
+{
+    int idx = -1;
+    if (cable)
+    {
+        QString cur = DevBoxIn->currentText();
+        if (!cur.contains("CABLE Output",Qt::CaseInsensitive)) s_in_dev_before_cable = cur;
+        for (int i = 0; i < DevBoxIn->count(); ++i)
+            if (DevBoxIn->itemText(i).contains("CABLE Output",Qt::CaseInsensitive)) { idx = i; break; }
+    }
+    else
+    {
+        if (!s_in_dev_before_cable.isEmpty()) idx = DevBoxIn->findText(s_in_dev_before_cable,Qt::MatchCaseSensitive);
+        if (idx < 0)
+            for (int i = 0; i < DevBoxIn->count(); ++i)
+                if (DevBoxIn->itemText(i).contains("IN 1-2",Qt::CaseInsensitive)) { idx = i; break; }
+    }
+    if (idx < 0) return false;
+    if (idx != DevBoxIn->currentIndex()) DevBoxIn->setCurrentIndex(idx);//-> InDeviceChanged -> InDevChanged (restart input, save)
+    return true;
+}

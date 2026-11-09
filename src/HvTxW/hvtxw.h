@@ -304,6 +304,8 @@ public:
     //void FlexSetDefFreqGlobal(QString);//2.76.7 
 
 public slots:
+    void AnonToggled(bool);//ik1hjs
+    void AnonFailed();//ik1hjs
 	//void SetFtDf1500(bool);
 	void SetAResetQsoAtEnd(bool); //2.49
 	void SetCfm73(bool);
@@ -390,6 +392,7 @@ signals:
     void EmitAuto();
     void EmitUdpMultiAnswer(int);//ik1hjs UDP SetMultiAnswer (53)
     void EmitToggleMAStdDx();//ik1hjs MA button
+    void EmitAnonToggled(bool);//ik1hjs anonymous button
     void EmitFileNameChenged();
     void EmitDfSdbChanged(int,int);
     void EmitDfChanged(int,int);
@@ -497,6 +500,7 @@ private:
 	QString s_last_bccall_tolog_excp;
 	HvButtonLeftRightClick *b_add_to_log;//QPushButton *b_add_to_log;	
     QPushButton *b_ma_toggle;//ik1hjs
+    QPushButton *pb_anon;//ik1hjs
     void AddToLog_p(bool direct_save_to_log); 
     bool s_start_qso_from_tx2;
     //bool DialogIsCallDupeInLog(QString hisCall_inmsg);

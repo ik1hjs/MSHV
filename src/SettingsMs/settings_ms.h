@@ -43,6 +43,8 @@ class SettingsMs : public QDialog
 {
     Q_OBJECT
 public:
+    bool SwitchInDevCable(bool cable);//ik1hjs anonymous button: input -> CABLE Output and back
+    QString s_in_dev_before_cable;//ik1hjs
     SettingsMs(QWidget * parent = 0);
     virtual ~SettingsMs();
 

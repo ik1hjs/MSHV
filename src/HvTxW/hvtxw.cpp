@@ -995,6 +995,15 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     H_locdb->setAlignment(Qt::AlignCenter);
     //H_locdb->setAlignment(pb_adddb,Qt::AlignLeft);
 
+    //ik1hjs anonymous button (no text, black / red when on CABLE) under ADD: input CABLE + DT 1.0 <-> previous input + DT 0
+    pb_anon = new QPushButton("");
+    pb_anon->setCheckable(true);
+    pb_anon->setFixedSize(56,40);
+    pb_anon->setFocusPolicy(Qt::NoFocus);
+    pb_anon->setStyleSheet("QPushButton{background-color:black;border:1px solid rgb(90,90,90);}"
+                           "QPushButton:checked{background-color:rgb(220,0,0);border:1px solid rgb(140,0,0);}");//ik1hjs black, red on CABLE
+    connect(pb_anon,SIGNAL(toggled(bool)),this,SLOT(AnonToggled(bool)));
+
     QHBoxLayout *H_lc = new QHBoxLayout();
     H_lc->setContentsMargins (1, 1, 1, 1);
     H_lc->setSpacing(3);
@@ -1082,11 +1091,20 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
 
     V_dt->addLayout(H_locdb);
     V_dt->setAlignment(LeHisLoc,Qt::AlignCenter);
-    V_dt->addLayout(H_lc);
-    V_dt->setAlignment(H_lc,Qt::AlignCenter);
-
-    V_dt->addLayout(H_mon_calls);
-    V_dt->setAlignment(H_mon_calls,Qt::AlignCenter);
+    QVBoxLayout *V_lcmon = new QVBoxLayout();//ik1hjs the two rows under ADD + the anonymous button on their right
+    V_lcmon->setContentsMargins(0,0,0,0);
+    V_lcmon->setSpacing(0);
+    V_lcmon->addLayout(H_lc);
+    V_lcmon->setAlignment(H_lc,Qt::AlignCenter);
+    V_lcmon->addLayout(H_mon_calls);
+    V_lcmon->setAlignment(H_mon_calls,Qt::AlignCenter);
+    QHBoxLayout *H_anon = new QHBoxLayout();
+    H_anon->setContentsMargins(0,0,0,0);
+    H_anon->setSpacing(4);
+    H_anon->addLayout(V_lcmon);
+    H_anon->addWidget(pb_anon);
+    H_anon->setAlignment(pb_anon,Qt::AlignRight | Qt::AlignVCenter);
+    V_dt->addLayout(H_anon);
     /*V_dt->addWidget(l_dey);
     V_dt->setAlignment(l_dey,Qt::AlignCenter);
     V_dt->addWidget(l_time);
@@ -5714,4 +5732,15 @@ void HvTxW::ExternalFindLocFromDB(QString call)
     TRadioAndNetW->SetLocFromDB(loc);
 }
 
-
+void HvTxW::AnonToggled(bool f)//ik1hjs anonymous button
+{
+    emit EmitAnonToggled(f);//Main_Ms switches the input device; if it fails it calls AnonFailed()
+    sb_dt->SetDtSec(f ? 1.0 : 0.0);
+}
+void HvTxW::AnonFailed()//ik1hjs no CABLE device: back to normal
+{
+    pb_anon->blockSignals(true);
+    pb_anon->setChecked(false);
+    pb_anon->blockSignals(false);
+    sb_dt->SetDtSec(0.0);
+}

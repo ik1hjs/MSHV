@@ -89,6 +89,15 @@ void HvSpinBoxDt::ClrDT()
 	sb_dt->setValue(0.0);
 	SetEmitValueChanged_p(0);	
 }
+void HvSpinBoxDt::SetDtSec(double d)//ik1hjs
+{
+    s_val = qRound(d*10.0)*100;
+    val0 = (double)s_val/1000.0;
+    sb_dt->blockSignals(true);
+    sb_dt->setValue(val0);
+    sb_dt->blockSignals(false);
+    SetEmitValueChanged_p(s_val);
+}
 void HvSpinBoxDt::SetMode(int mode)
 {
     if (mode==11 || mode==13 || mode==18) SetEmitValueChanged_p(s_val);

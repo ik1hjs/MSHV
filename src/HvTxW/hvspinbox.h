@@ -22,6 +22,7 @@ public:
     void SetFont(QFont);
     void SetHidden(bool f);
     void SetMode(int);         
+    void SetDtSec(double d);//ik1hjs set DT to an absolute value (anonymous button)
 signals:
     void EmitValueChanged(int);
 public slots:

@@ -86,6 +86,7 @@ private slots:
     void SetAuto();
     void SetUdpMultiAnswer(int);//ik1hjs
     void ToggleMAStdDx();//ik1hjs MA button and Ctrl+Q
+    void AnonToggled(bool);//ik1hjs anonymous button
     void StopRxGlobal();
     void SetFileToDisplay();
     void SaveFileDisplay1();
