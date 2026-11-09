@@ -998,7 +998,8 @@ HvTxW::HvTxW(QString inst,QString path,int lid,bool f,int x,int y,QWidget * pare
     //ik1hjs anonymous button (no text, normal look / red when on CABLE) under ADD: input CABLE + DT 1.0 <-> previous input + DT 0
     pb_anon = new QPushButton("");
     pb_anon->setCheckable(true);
-    pb_anon->setFixedSize(56,40);
+    pb_anon->setFixedHeight(21);//ik1hjs same size as ADD
+    pb_anon->setFixedWidth(47);
     pb_anon->setFocusPolicy(Qt::NoFocus);
     //ik1hjs normal button look like the others (no style sheet), red only while on CABLE (see AnonToggled)
     connect(pb_anon,SIGNAL(toggled(bool)),this,SLOT(AnonToggled(bool)));
