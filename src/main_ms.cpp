@@ -1290,8 +1290,8 @@ Main_Ms::Main_Ms(QString inst0,QWidget * parent)
         H_rot->setSpacing(3);
         QLabel *l_rot = new QLabel("Rotore:");
         l_rot_az = new QLabel("---\u00b0");
-        l_rot_az->setMinimumWidth(130);
-        l_rot_az->setStyleSheet("QLabel{font-weight:bold;font-size:14pt;color:rgb(210,0,0);}");
+        l_rot_az->setMinimumWidth(150);
+        l_rot_az->setStyleSheet("QLabel{font-weight:bold;font-size:16pt;color:rgb(0,90,210);}");
         l_rot_az->setToolTip("Posizione del rotore letta da DX Alert (ARSVCOM)");
         le_rot = new RotLineEdit();
         le_rot->setFixedWidth(42);
@@ -5453,13 +5453,13 @@ void Main_Ms::RotShow(QByteArray data,bool after_cmd)
     if (o.isEmpty())
     {
         l_rot_az->setText("---\u00b0");
-        l_rot_az->setStyleSheet("QLabel{font-weight:bold;font-size:14pt;color:gray;}");
+        l_rot_az->setStyleSheet("QLabel{font-weight:bold;font-size:16pt;color:gray;}");
         l_rot_az->setToolTip("DX Alert non risponde (porta 8073)");
         return;
     }
     QString az = o.value("az").isNull() ? QString("---") : QString::number(o.value("az").toInt());
     QString txt = az+"\u00b0";
-    QString col = "color:rgb(210,0,0);";//ik1hjs normal: red like STOP
+    QString col = "color:rgb(0,90,210);";//ik1hjs normal: blue
     QString tip = "Posizione del rotore letta da DX Alert (ARSVCOM)";
     QJsonObject j = o.value("job").toObject();
     if (!j.isEmpty() && j.value("stage").toString()=="moving")
@@ -5475,7 +5475,7 @@ void Main_Ms::RotShow(QByteArray data,bool after_cmd)
     else if (after_cmd && !j.isEmpty() && j.value("stage").toString()=="error") tip = j.value("msg").toString();
     if (after_cmd && !o.value("err").toString().isEmpty()) tip = o.value("err").toString();
     l_rot_az->setText(txt);
-    l_rot_az->setStyleSheet("QLabel{font-weight:bold;font-size:14pt;"+col+"}");
+    l_rot_az->setStyleSheet("QLabel{font-weight:bold;font-size:16pt;"+col+"}");
     l_rot_az->setToolTip(tip);
 }
 void Main_Ms::RotPoll()
